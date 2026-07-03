@@ -83,7 +83,9 @@ const requiredSnippets = [
   "/api/pairing/trust",
   "data-tablet-pairing-payload",
   "data-tablet-pairing-code",
+  "data-tablet-pairing-image",
   "data-tablet-pairing-input-status",
+  "BarcodeDetector",
   "/api/discovery/scan",
   "/api/discovery/resolve"
 ];

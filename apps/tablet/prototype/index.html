@@ -772,6 +772,10 @@
               <span>6 位校验码</span>
               <input data-tablet-pairing-code inputmode="numeric" maxlength="6" placeholder="000000">
             </label>
+            <label class="field">
+              <span>二维码图片</span>
+              <input type="file" accept="image/*" data-tablet-pairing-image>
+            </label>
             <p data-tablet-pairing-input-status style="margin-top:8px">可粘贴桌面二维码内容；留空时使用本机预览桌面。</p>
           </div>
           <div class="actions">
@@ -1993,6 +1997,35 @@
       }
       return pairing;
     }
+
+    async function scanTabletPairingImage(file) {
+      const statusNode = document.querySelector("[data-tablet-pairing-input-status]");
+      if (!file) return;
+      if (!("BarcodeDetector" in window)) {
+        if (statusNode) statusNode.textContent = "当前浏览器不支持图片扫码，请粘贴 QR payload。";
+        return;
+      }
+      try {
+        const bitmap = await createImageBitmap(file);
+        const detector = new BarcodeDetector({ formats: ["qr_code"] });
+        const codes = await detector.detect(bitmap);
+        const payloadText = codes[0]?.rawValue?.trim();
+        if (!payloadText) {
+          if (statusNode) statusNode.textContent = "未识别到二维码，请换一张更清晰的图片。";
+          return;
+        }
+        const payloadNode = document.querySelector("[data-tablet-pairing-payload]");
+        if (payloadNode) payloadNode.value = payloadText;
+        if (statusNode) statusNode.textContent = "已识别 QR payload，请输入桌面显示的 6 位校验码。";
+      } catch {
+        if (statusNode) statusNode.textContent = "二维码图片识别失败，请改用粘贴 QR payload。";
+      }
+    }
+
+    document.querySelector("[data-tablet-pairing-image]")?.addEventListener("change", async (event) => {
+      await scanTabletPairingImage(event.target.files?.[0]);
+      event.target.value = "";
+    });
 
     document.querySelector("[data-action='trust-desktop']").addEventListener("click", async (event) => {
       try {

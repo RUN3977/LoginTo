@@ -869,6 +869,7 @@ assert(readText("apps/mobile/scripts/app-state.mjs").includes("normalizeOcrEdite
 assert(readText("apps/mobile/scripts/capture-session.mjs").includes("writeEncryptedCaptureBlobAtomically") && readText("apps/mobile/scripts/capture-session.mjs").includes("parseEncryptedAttachmentBlob") && readText("apps/mobile/scripts/capture-session.mjs").includes("writeVerified"), "mobile capture session should atomically persist and verify encrypted attachment blobs");
 assert(readText("tools/smoke-mobile-camera-capture-session.mjs").includes("writeVerified") && readText("tools/smoke-mobile-camera-capture-session.mjs").includes(".tmp"), "mobile camera capture smoke should verify atomic attachment commit");
 assert(readText("apps/mobile/prototype/index.html").includes("data-open-sheet=\"pair\""), "mobile prototype should expose pairing sheet interaction");
+assert(readText("apps/mobile/prototype/index.html").includes("data-mobile-pairing-image") && readText("apps/mobile/prototype/index.html").includes("BarcodeDetector"), "mobile prototype should accept QR image scans for pairing payloads when supported");
 assert(readText("apps/mobile/prototype/index.html").includes("data-open-sheet=\"capture\""), "mobile prototype should expose capture sheet interaction");
 assert(readText("apps/mobile/prototype/index.html").includes("data-activity-log"), "mobile prototype should show a visible local action log");
 assert(readText("apps/tablet/package.json").includes("@loginto/tablet"), "tablet package should define a terminal app package");
@@ -950,6 +951,7 @@ assert(readText("apps/tablet/prototype/index.html").includes("formatTabletRemind
 assert(readText("apps/tablet/prototype/index.html").includes("/api/review/notes"), "tablet prototype should call review notes API");
 assert(readText("apps/tablet/prototype/index.html").includes("/api/pairing/trust"), "tablet prototype should call pairing trust API");
 assert(readText("apps/tablet/prototype/index.html").includes("/api/pairing/start"), "tablet prototype should request a desktop QR pairing payload before trusting");
+assert(readText("apps/tablet/prototype/index.html").includes("data-tablet-pairing-image") && readText("apps/tablet/prototype/index.html").includes("BarcodeDetector"), "tablet prototype should accept QR image scans for pairing payloads when supported");
 assert(readText("apps/tablet/prototype/index.html").includes("/api/discovery/scan"), "tablet prototype should call near-field discovery scan API");
 assert(readText("apps/tablet/prototype/index.html").includes("/api/discovery/resolve"), "tablet prototype should resolve near-field candidate actions");
 assert(readText("apps/tablet/prototype/index.html").includes("data-tablet-discovery-probes"), "tablet prototype should show near-field probe diagnostics");
