@@ -729,6 +729,17 @@
         <div class="reminder-list" data-mobile-sync-audit-log></div>
         <p class="sub" data-discovery-probes>近场探测：等待扫描</p>
         <div class="reminder-list" data-near-field-candidates></div>
+        <div class="pairing-inputs" data-mobile-pairing-inputs>
+          <label class="form-field">
+            <span>QR payload</span>
+            <textarea data-mobile-pairing-payload rows="3" placeholder="Paste desktop QR payload"></textarea>
+          </label>
+          <label class="form-field">
+            <span>6 位校验码</span>
+            <input data-mobile-pairing-code inputmode="numeric" maxlength="6" placeholder="000000">
+          </label>
+          <p class="sub" data-mobile-pairing-input-status>可粘贴桌面二维码内容；留空时使用本机预览桌面。</p>
+        </div>
         <div class="button-row">
           <button class="button ghost" type="button" data-open-sheet="pair" data-action="scan-pairing">预检配对</button>
           <button class="button" type="button" data-action="trust-pairing">信任桌面</button>
@@ -1750,12 +1761,40 @@
 
     document.querySelector("[data-action='scan-pairing']").addEventListener("click", async () => {
       try {
-        const result = await requestJson("/api/pairing/scan", {});
+        const pairingInput = readMobilePairingInput();
+        const result = await requestJson("/api/pairing/scan", pairingInput.payloadText ? {
+          payloadText: pairingInput.payloadText
+        } : {});
+        fillMobilePairingInput(result);
         logAction(`配对预检通过：${result.deviceName}`, "sync");
       } catch (error) {
         logAction("配对预检失败", "error");
       }
     });
+
+    function readMobilePairingInput() {
+      const payloadText = document.querySelector("[data-mobile-pairing-payload]")?.value.trim();
+      const confirmedCode = document.querySelector("[data-mobile-pairing-code]")?.value.trim();
+      return {
+        payloadText: payloadText || undefined,
+        confirmedCode: confirmedCode || undefined
+      };
+    }
+
+    function fillMobilePairingInput(scan) {
+      const payloadNode = document.querySelector("[data-mobile-pairing-payload]");
+      const codeNode = document.querySelector("[data-mobile-pairing-code]");
+      if (payloadNode && !payloadNode.value.trim() && scan?.qrPayloadText) {
+        payloadNode.value = scan.qrPayloadText;
+      }
+      if (codeNode && !codeNode.value.trim() && scan?.previewVerificationCode) {
+        codeNode.value = scan.previewVerificationCode;
+      }
+      const statusNode = document.querySelector("[data-mobile-pairing-input-status]");
+      if (statusNode && scan?.deviceName) {
+        statusNode.textContent = `已读取 ${scan.deviceName}，请核对 6 位校验码后信任。`;
+      }
+    }
 
     async function trustMobilePairing(button) {
       try {
@@ -1763,10 +1802,14 @@
           title: "确认桌面身份",
           copy: "正在读取二维码配对负载，并核对 6 位校验码。"
         });
-        const scanned = await requestJson("/api/pairing/scan", {});
+        const pairingInput = readMobilePairingInput();
+        const scanned = pairingInput.payloadText && pairingInput.confirmedCode
+          ? { qrPayloadText: pairingInput.payloadText, previewVerificationCode: pairingInput.confirmedCode }
+          : await requestJson("/api/pairing/scan", pairingInput.payloadText ? { payloadText: pairingInput.payloadText } : {});
+        fillMobilePairingInput(scanned);
         const result = await requestJson("/api/pairing/trust", {
-          payloadText: scanned.qrPayloadText,
-          confirmedCode: scanned.previewVerificationCode
+          payloadText: pairingInput.payloadText ?? scanned.qrPayloadText,
+          confirmedCode: pairingInput.confirmedCode ?? scanned.previewVerificationCode
         });
         renderState(result.appState);
         if (button) {

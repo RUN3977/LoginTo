@@ -763,6 +763,17 @@
           <div class="reminder-list" data-tablet-sync-audit-log></div>
           <p data-tablet-discovery-probes style="margin-top:8px">近场探测：等待扫描</p>
           <div class="reminder-list" data-tablet-near-field-candidates></div>
+          <div class="pairing-inputs" data-tablet-pairing-inputs>
+            <label class="field">
+              <span>QR payload</span>
+              <textarea data-tablet-pairing-payload rows="3" placeholder="Paste desktop QR payload"></textarea>
+            </label>
+            <label class="field">
+              <span>6 位校验码</span>
+              <input data-tablet-pairing-code inputmode="numeric" maxlength="6" placeholder="000000">
+            </label>
+            <p data-tablet-pairing-input-status style="margin-top:8px">可粘贴桌面二维码内容；留空时使用本机预览桌面。</p>
+          </div>
           <div class="actions">
             <button class="button" type="button" data-action="trust-desktop">信任桌面</button>
             <button class="button" type="button" data-action="discovery-scan">扫描近场设备</button>
@@ -1921,15 +1932,7 @@
           title: "确认桌面身份",
           copy: "正在读取桌面二维码，并核对 6 位校验码。"
         });
-        const pairingResponse = await fetch("http://127.0.0.1:4173/api/pairing/start", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ttlSeconds: 300 })
-        });
-        if (!pairingResponse.ok) {
-          throw new Error(`Desktop pairing request failed: ${pairingResponse.status}`);
-        }
-        const pairing = await pairingResponse.json();
+        const pairing = await readTabletPairingOrPreview();
         const result = await requestJson("/api/pairing/trust", {
           payloadText: pairing.qrPayloadText,
           confirmedCode: pairing.sixDigitCode
@@ -1956,6 +1959,39 @@
         logTabletAction("信任桌面失败", "error");
         throw error;
       }
+    }
+
+    async function readTabletPairingOrPreview() {
+      const payloadNode = document.querySelector("[data-tablet-pairing-payload]");
+      const codeNode = document.querySelector("[data-tablet-pairing-code]");
+      const payloadText = payloadNode?.value.trim();
+      const confirmedCode = codeNode?.value.trim();
+      if (payloadText && confirmedCode) {
+        return {
+          qrPayloadText: payloadText,
+          sixDigitCode: confirmedCode
+        };
+      }
+      const pairingResponse = await fetch("http://127.0.0.1:4173/api/pairing/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ttlSeconds: 300 })
+      });
+      if (!pairingResponse.ok) {
+        throw new Error(`Desktop pairing request failed: ${pairingResponse.status}`);
+      }
+      const pairing = await pairingResponse.json();
+      if (payloadNode && !payloadNode.value.trim()) {
+        payloadNode.value = pairing.qrPayloadText;
+      }
+      if (codeNode && !codeNode.value.trim()) {
+        codeNode.value = pairing.sixDigitCode;
+      }
+      const statusNode = document.querySelector("[data-tablet-pairing-input-status]");
+      if (statusNode) {
+        statusNode.textContent = "已读取桌面 QR payload，请核对 6 位校验码后信任。";
+      }
+      return pairing;
     }
 
     document.querySelector("[data-action='trust-desktop']").addEventListener("click", async (event) => {

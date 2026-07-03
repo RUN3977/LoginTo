@@ -81,6 +81,9 @@ const requiredSnippets = [
   "/api/review/confirm",
   "/api/review/notes",
   "/api/pairing/trust",
+  "data-tablet-pairing-payload",
+  "data-tablet-pairing-code",
+  "data-tablet-pairing-input-status",
   "/api/discovery/scan",
   "/api/discovery/resolve"
 ];
