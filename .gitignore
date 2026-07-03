@@ -1,80 +1,19 @@
-# Flutter
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-/build/
-flutter_*.png
-linked_*.ds
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-*.orig.*
-flutter_export_environment.sh
-
-# Xcode
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/.vscode/
-**/ios/**/flutter/Flutter.framework
-**/ios/**/flutter/Flutter.podspec
-**/ios/**/GeneratedPluginRegistrant.*
-
-# Android
-**/android/**/gradle-wrapper.jar
-**/android/.gradle
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
-*.jks
-
-# iOS/macOS
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/**/*sync/
-**/ios/**/.sconsign.dblite
-**/ios/**/.tags*
-**/ios/**/Flutter/Flutter.framework
-**/ios/**/Flutter/Flutter.podspec
-**/ios/**/GeneratedPluginRegistrant.*
-**/macos/Flutter/GeneratedPluginRegistrant.swift
-
-# Database
-*.db
-*.db-journal
-
-# IDE
-.idea/
+node_modules/
+.toolchain/
+dist/
+build/
+.turbo/
+.cache/
+.tmp/
+.expo/
 .vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-*.iml
-
-# Test
+.idea/
 coverage/
-.nyc_output/
-
-# Misc
-.env
-.env.local
-.env.*.local
 *.log
-pubspec.lock
+*.tmp
+*.bak
+*.sqlite
+*.sqlite3
+*.vault
+*.vaultpkg
+docs/rendered_login_to_plan/

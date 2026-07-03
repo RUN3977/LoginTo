@@ -1,0 +1,38 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .: {}
+
+  apps/desktop: {}
+
+  apps/mobile: {}
+
+  apps/tablet: {}
+
+  packages/crypto-core: {}
+
+  packages/ocr-core: {}
+
+  packages/sync-core:
+    dependencies:
+      qrcode-generator:
+        specifier: ^2.0.4
+        version: 2.0.4
+
+  packages/ui: {}
+
+  packages/vault-core: {}
+
+packages:
+
+  qrcode-generator@2.0.4:
+    resolution: {integrity: sha512-mZSiP6RnbHl4xL2Ap5HfkjLnmxfKcPWpWe/c+5XxCuetEenqmNFf1FH/ftXPCtFG5/TDobjsjz6sSNL0Sr8Z9g==}
+
+snapshots:
+
+  qrcode-generator@2.0.4: {}

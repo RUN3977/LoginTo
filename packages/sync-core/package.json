@@ -1,0 +1,12 @@
+{
+  "name": "@loginto/sync-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
+  }
+}

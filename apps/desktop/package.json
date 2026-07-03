@@ -1,0 +1,12 @@
+{
+  "name": "@loginto/desktop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "LoginTo desktop terminal app, planned for Tauri.",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "preview": "node scripts/dev-server.mjs --open",
+    "check": "node scripts/check-app-shell.mjs"
+  }
+}
