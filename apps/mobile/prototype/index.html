@@ -761,6 +761,11 @@
         <p class="sub" data-storage-vault-path>Vault：等待加载</p>
         <p class="sub" data-storage-runtime-path>runtime-state：等待加载</p>
         <p class="sub" data-device-copy>设备身份：等待加载</p>
+        <p class="sub" data-mobile-backup-status>备份：尚未导出</p>
+        <div class="button-row">
+          <button class="button ghost" type="button" data-action="mobile-backup-export">导出本机备份</button>
+          <button class="button ghost" type="button" data-action="mobile-backup-verify">验证备份</button>
+        </div>
       </section>
 
       <section class="panel" data-mobile-security-panel>
@@ -909,6 +914,7 @@
       document.querySelector("[data-storage-vault-path]").textContent = `Vault：${state.storage.vaultPath}`;
       document.querySelector("[data-storage-runtime-path]").textContent = `runtime-state：${state.storage.runtimeStatePath}`;
       document.querySelector("[data-device-copy]").textContent = `设备身份：${state.runtime.deviceId}`;
+      document.querySelector("[data-mobile-backup-status]").textContent = `备份：${state.storage.backup?.targetPath ?? "等待导出"}`;
 
       const receipt = state.syncPanel?.lastReceiptSummary ?? state.syncPanel?.lastReceipt;
       const confirmation = state.syncPanel?.pendingConfirmation;
@@ -1691,6 +1697,29 @@
         logAction(`已采集并加密附件：${result.session.imageAttachmentId}`);
       } catch (error) {
         logAction("拍照采集失败", "error");
+      }
+    });
+
+    document.querySelector("[data-action='mobile-backup-export']").addEventListener("click", async () => {
+      try {
+        const result = await requestJson("/api/backup/export", {});
+        renderState(result.appState);
+        document.querySelector("[data-mobile-backup-status]").textContent =
+          `Backup: exported ${result.summary.records} records / ${result.summary.bytes} bytes`;
+        logAction(`Backup exported: ${result.savedPath}`);
+      } catch (error) {
+        logAction("Backup export failed", "error");
+      }
+    });
+
+    document.querySelector("[data-action='mobile-backup-verify']").addEventListener("click", async () => {
+      try {
+        const result = await requestJson("/api/backup/verify", {});
+        document.querySelector("[data-mobile-backup-status]").textContent =
+          `Backup: verified ${result.summary.records} records / ${result.summary.attachments} attachments`;
+        logAction("Backup verified");
+      } catch (error) {
+        logAction("Backup verify failed; export first", "error");
       }
     });
 

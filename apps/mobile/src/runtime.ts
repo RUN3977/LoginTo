@@ -2,6 +2,8 @@ import {
   DEFAULT_KDF_PARAMS,
   DEFAULT_WEB_CRYPTO_KDF_PARAMS,
   VaultSecuritySession,
+  createCryptoPackageDecryptor,
+  createCryptoPackageEncryptor,
   createCryptoFieldEncryptor,
   createWebCryptoAesGcmAdapter,
   decryptCryptoFieldValue,
@@ -13,10 +15,14 @@ import {
 import {
   InMemoryVaultRepository,
   ReminderNotificationCenter,
+  createVaultPackageAsync,
   createVaultManifest,
   createVaultRecordAsync,
   deliverTerminalReminderNotifications,
   getDueReminderAlerts,
+  parseVaultPackage,
+  restoreSnapshotFromVaultPackageAsync,
+  serializeVaultPackage,
   type Clock,
   type FieldSensitivity,
   type FieldUpdate,
@@ -27,6 +33,7 @@ import {
   type TerminalNotificationAdapter,
   type TerminalReminderNotificationDispatch,
   type VaultStorageAdapter,
+  type VaultPackage,
   type VaultRecord
 } from "../../../packages/vault-core/src/index.ts";
 import {
@@ -324,6 +331,36 @@ export class MobileRuntime {
       valueCipher: input.valueCipher,
       aadPrefix: this.cryptoState.fieldAadPrefix
     });
+  }
+
+  async exportEncryptedBackupPackage(): Promise<VaultPackage> {
+    this.requireUnlocked();
+    return createVaultPackageAsync({
+      snapshot: this.repository.snapshot(),
+      keyPurpose: "backup-package",
+      encryptPayload: createCryptoPackageEncryptor({
+        adapter: this.#adapter,
+        key: this.#key
+      }),
+      now: this.#now,
+      ids: this.#ids
+    });
+  }
+
+  serializeEncryptedBackupPackage(vaultPackage: VaultPackage): string {
+    return serializeVaultPackage(vaultPackage);
+  }
+
+  async verifyEncryptedBackupPackage(packageJson: string) {
+    this.requireUnlocked();
+    const vaultPackage = parseVaultPackage(packageJson);
+    return restoreSnapshotFromVaultPackageAsync(
+      vaultPackage,
+      createCryptoPackageDecryptor({
+        adapter: this.#adapter,
+        key: this.#key
+      })
+    );
   }
 
   planClipboardClear(fieldKey: string, requestedAt = this.#now?.() ?? new Date().toISOString()): ClipboardClearPlan {

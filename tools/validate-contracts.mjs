@@ -507,6 +507,14 @@ assert(readText("apps/desktop/scripts/app-state.mjs").includes("security: runtim
 assert(readText("apps/desktop/prototype/index.html").includes("/api/app-state"), "desktop prototype should load local app-state API");
 assert(readText("apps/desktop/prototype/index.html").includes("/api/backup/export"), "desktop prototype should call local backup export API");
 assert(readText("apps/desktop/prototype/index.html").includes("/api/backup/verify"), "desktop prototype should call local backup verify API");
+assert(readText("apps/mobile/prototype/index.html").includes('data-action="mobile-backup-export"') && readText("apps/mobile/prototype/index.html").includes('data-action="mobile-backup-verify"'), "mobile prototype should expose local backup export and verify actions");
+assert(readText("apps/tablet/prototype/index.html").includes('data-action="tablet-backup-export"') && readText("apps/tablet/prototype/index.html").includes('data-action="tablet-backup-verify"'), "tablet prototype should expose local backup export and verify actions");
+assert(readText("apps/mobile/prototype/index.html").includes("/api/backup/export") && readText("apps/mobile/prototype/index.html").includes("/api/backup/verify"), "mobile prototype should call local backup APIs");
+assert(readText("apps/tablet/prototype/index.html").includes("/api/backup/export") && readText("apps/tablet/prototype/index.html").includes("/api/backup/verify"), "tablet prototype should call local backup APIs");
+assert(readText("apps/mobile/scripts/app-state.mjs").includes("exportMobileShellBackupPackage") && readText("apps/mobile/scripts/app-state.mjs").includes("verifyMobileShellBackupPackage"), "mobile app-state should expose encrypted backup export and verification");
+assert(readText("apps/tablet/scripts/app-state.mjs").includes("exportTabletShellBackupPackage") && readText("apps/tablet/scripts/app-state.mjs").includes("verifyTabletShellBackupPackage"), "tablet app-state should expose encrypted backup export and verification");
+assert(readText("apps/mobile/scripts/dev-server.mjs").includes("/api/backup/export") && readText("apps/mobile/scripts/dev-server.mjs").includes("/api/backup/verify"), "mobile dev server should expose local backup APIs");
+assert(readText("apps/tablet/scripts/dev-server.mjs").includes("/api/backup/export") && readText("apps/tablet/scripts/dev-server.mjs").includes("/api/backup/verify"), "tablet dev server should expose local backup APIs");
 assert(readText("apps/desktop/prototype/index.html").includes("/api/reminders/action"), "desktop prototype should call reminder action API");
 assert(readText("apps/desktop/prototype/index.html").includes("/api/reminders/dispatch"), "desktop prototype should call local reminder notification dispatch API");
 assert(readText("apps/desktop/prototype/index.html").includes("/api/discovery/scan"), "desktop prototype should call near-field discovery scan API");

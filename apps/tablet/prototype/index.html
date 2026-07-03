@@ -846,6 +846,11 @@
           <p data-storage-copy>Vault 与 runtime-state 将保存到本机 .tmp 文件。</p>
           <p data-storage-vault-path>Vault：等待加载</p>
           <p data-storage-runtime-path>runtime-state：等待加载</p>
+          <p data-tablet-backup-status>备份：尚未导出</p>
+          <div class="actions">
+            <button class="button" type="button" data-action="tablet-backup-export">导出本机备份</button>
+            <button class="button" type="button" data-action="tablet-backup-verify">验证备份</button>
+          </div>
         </div>
       </aside>
     </section>
@@ -930,6 +935,7 @@
       document.querySelector("[data-storage-copy]").textContent = `Vault: ${state.storage.persistedVault ? "已持久化" : "未持久化"}，runtime-state: ${state.storage.persistedRuntimeState ? "已持久化" : "未持久化"}`;
       document.querySelector("[data-storage-vault-path]").textContent = `Vault：${state.storage.vaultPath}`;
       document.querySelector("[data-storage-runtime-path]").textContent = `runtime-state：${state.storage.runtimeStatePath}`;
+      document.querySelector("[data-tablet-backup-status]").textContent = `备份：${state.storage.backup?.targetPath ?? "等待导出"}`;
       renderSyncPanel(state.syncPanel);
       renderTabletNearFieldCandidates(state.syncPanel?.discovery);
       renderTabletTrustedDevices(state.syncPanel?.trustedDeviceSummaries, state.syncPanel?.trustedDeviceRevocations);
@@ -2025,6 +2031,29 @@
     document.querySelector("[data-tablet-pairing-image]")?.addEventListener("change", async (event) => {
       await scanTabletPairingImage(event.target.files?.[0]);
       event.target.value = "";
+    });
+
+    document.querySelector("[data-action='tablet-backup-export']").addEventListener("click", async () => {
+      try {
+        const result = await requestJson("/api/backup/export", {});
+        renderState(result.appState);
+        document.querySelector("[data-tablet-backup-status]").textContent =
+          `Backup: exported ${result.summary.records} records / ${result.summary.bytes} bytes`;
+        logTabletAction(`Backup exported: ${result.savedPath}`);
+      } catch (error) {
+        logTabletAction("Backup export failed", "error");
+      }
+    });
+
+    document.querySelector("[data-action='tablet-backup-verify']").addEventListener("click", async () => {
+      try {
+        const result = await requestJson("/api/backup/verify", {});
+        document.querySelector("[data-tablet-backup-status]").textContent =
+          `Backup: verified ${result.summary.records} records / ${result.summary.attachments} attachments`;
+        logTabletAction("Backup verified");
+      } catch (error) {
+        logTabletAction("Backup verify failed; export first", "error");
+      }
     });
 
     document.querySelector("[data-action='trust-desktop']").addEventListener("click", async (event) => {

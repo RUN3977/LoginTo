@@ -13,6 +13,7 @@ import {
   createTabletShellSyncPreview,
   createTabletStatusPayload,
   deleteTabletShellRecord,
+  exportTabletShellBackupPackage,
   getTabletShellSyncSummary,
   publicRoot,
   pushTabletShellSyncToDesktop,
@@ -25,7 +26,8 @@ import {
   simulateTabletShellSyncFailure,
   trustTabletShellDesktop,
   updateTabletShellRecord,
-  updateTabletShellReviewNotes
+  updateTabletShellReviewNotes,
+  verifyTabletShellBackupPackage
 } from "./app-state.mjs";
 
 const shouldOpen = process.argv.includes("--open");
@@ -147,6 +149,20 @@ export function createTabletShellServer() {
         response.end(JSON.stringify(result, null, 2));
         return;
       }
+      if (url.pathname === "/api/backup/export" && request.method === "POST") {
+        const body = await readJsonBody(request);
+        const result = await exportTabletShellBackupPackage(body);
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify(result, null, 2));
+        return;
+      }
+      if (url.pathname === "/api/backup/verify" && request.method === "POST") {
+        const body = await readJsonBody(request);
+        const result = await verifyTabletShellBackupPackage(body);
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify(result, null, 2));
+        return;
+      }
       if (url.pathname === "/api/sync/receive" && request.method === "POST") {
         const body = await readJsonBody(request);
         const result = await receiveTabletShellSyncPackage(body);
@@ -202,7 +218,7 @@ export function createTabletShellServer() {
         response.end(JSON.stringify(result, null, 2));
         return;
       }
-      if (["/api/review/confirm", "/api/reminders/action", "/api/pairing/trust", "/api/trusted-devices", "/api/review/notes", "/api/records", "/api/sync/receive", "/api/sync/request", "/api/sync/request-result", "/api/sync/preview", "/api/sync/push", "/api/sync/demo-failure", "/api/sync/confirmation-action"].includes(url.pathname)) {
+      if (["/api/review/confirm", "/api/reminders/action", "/api/pairing/trust", "/api/trusted-devices", "/api/review/notes", "/api/records", "/api/backup/export", "/api/backup/verify", "/api/sync/receive", "/api/sync/request", "/api/sync/request-result", "/api/sync/preview", "/api/sync/push", "/api/sync/demo-failure", "/api/sync/confirmation-action"].includes(url.pathname)) {
         response.writeHead(405, { "Content-Type": "application/json; charset=utf-8" });
         response.end(JSON.stringify({ error: "method-not-allowed" }));
         return;

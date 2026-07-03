@@ -7,14 +7,18 @@ const sync = await import("../packages/sync-core/src/index.ts");
 
 const vaultPath = join(process.cwd(), ".tmp", "mobile-app-shell-smoke.vault-snapshot.json");
 const runtimeStatePath = join(process.cwd(), ".tmp", "mobile-app-shell-smoke.runtime-state.json");
+const backupPackagePath = join(process.cwd(), ".tmp", "mobile-app-shell-smoke.backup-package.json");
 process.env.LOGINTO_MOBILE_SHELL_VAULT_PATH = vaultPath;
 process.env.LOGINTO_MOBILE_SHELL_RUNTIME_STATE_PATH = runtimeStatePath;
+process.env.LOGINTO_MOBILE_BACKUP_PACKAGE_PATH = backupPackagePath;
 await rm(vaultPath, { force: true });
 await rm(`${vaultPath}.tmp`, { force: true });
 await rm(`${vaultPath}.sync-deletions.json`, { force: true });
 await rm(`${vaultPath}.sync-deletions.json.tmp`, { force: true });
 await rm(runtimeStatePath, { force: true });
 await rm(`${runtimeStatePath}.tmp`, { force: true });
+await rm(backupPackagePath, { force: true });
+await rm(`${backupPackagePath}.tmp`, { force: true });
 resetMobileShellRuntimeForTests();
 
 const htmlPath = join(process.cwd(), "apps/mobile/prototype/index.html");
@@ -85,6 +89,9 @@ const requiredSnippets = [
   "data-storage-vault-path",
   "data-storage-runtime-path",
   "data-device-copy",
+  "data-mobile-backup-status",
+  "data-action=\"mobile-backup-export\"",
+  "data-action=\"mobile-backup-verify\"",
   "data-mobile-security-panel",
   "data-mobile-security-lock-state",
   "data-mobile-security-second-unlock",
@@ -101,6 +108,8 @@ const requiredSnippets = [
   "/api/app-state",
   "/api/records",
   "/api/attachments",
+  "/api/backup/export",
+  "/api/backup/verify",
   "/api/reminders/action",
   "/api/ocr/commit",
   "/api/pairing/scan",
@@ -138,6 +147,9 @@ try {
   if (!appState.storage?.vaultPath?.includes(".tmp") || !appState.storage?.runtimeStatePath?.includes(".tmp")) {
     throw new Error("Expected mobile app-state to expose local storage paths");
   }
+  if (appState.storage?.backup?.targetPath !== backupPackagePath) {
+    throw new Error("Expected mobile app-state to expose local backup package path");
+  }
   if (!appState.deviceContainer.capabilities.some((capability) => capability.id === "camera-capture")) {
     throw new Error("Expected mobile device container to expose camera capture capability");
   }
@@ -164,6 +176,17 @@ try {
   }
   if (!appState.reminderCenter.items.some((item) => item.popupTitle?.includes("提醒") && item.popupBody?.includes("到期/触发时间"))) {
     throw new Error("Expected mobile reminder center to expose popup title and body content");
+  }
+
+  const backup = await postJson(`${baseUrl}/api/backup/export`, {});
+  if (!backup.ok || backup.summary.format !== appState.storage.backup.format || backup.summary.records !== appState.runtime.records) {
+    throw new Error("Expected mobile backup export API to write an encrypted vault package");
+  }
+  const verifiedBackup = await postJson(`${baseUrl}/api/backup/verify`, {
+    packageJson: backup.packageJson
+  });
+  if (!verifiedBackup.ok || verifiedBackup.summary.records !== backup.summary.records) {
+    throw new Error("Expected mobile backup verify API to decrypt the exported package");
   }
 
   const created = await postJson(`${baseUrl}/api/records`, {
@@ -346,6 +369,7 @@ try {
         deviceContainer: reloadedState.deviceContainer.kind,
         persistedVault: reloadedState.storage.persistedVault,
         persistedRuntimeState: reloadedState.storage.persistedRuntimeState,
+        backupRecords: verifiedBackup.summary.records,
         prototype: htmlPath
       },
       null,

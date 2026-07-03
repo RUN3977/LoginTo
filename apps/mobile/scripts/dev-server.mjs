@@ -13,6 +13,7 @@ import {
   createMobileShellSyncPreview,
   createMobileStatusPayload,
   deleteMobileShellRecord,
+  exportMobileShellBackupPackage,
   getMobileShellSyncSummary,
   publicRoot,
   pushMobileShellSyncToDesktop,
@@ -26,7 +27,8 @@ import {
   simulateMobileShellSyncFailure,
   startMobileShellCameraCapture,
   trustMobileShellPairingPreview,
-  updateMobileShellRecord
+  updateMobileShellRecord,
+  verifyMobileShellBackupPackage
 } from "./app-state.mjs";
 
 const shouldOpen = process.argv.includes("--open");
@@ -134,6 +136,20 @@ export function createMobileShellServer() {
         response.end(JSON.stringify(result, null, 2));
         return;
       }
+      if (url.pathname === "/api/backup/export" && request.method === "POST") {
+        const body = await readJsonBody(request);
+        const result = await exportMobileShellBackupPackage(body);
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify(result, null, 2));
+        return;
+      }
+      if (url.pathname === "/api/backup/verify" && request.method === "POST") {
+        const body = await readJsonBody(request);
+        const result = await verifyMobileShellBackupPackage(body);
+        response.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+        response.end(JSON.stringify(result, null, 2));
+        return;
+      }
       if (url.pathname === "/api/pairing/scan" && request.method === "POST") {
         const body = await readJsonBody(request);
         const result = scanMobileShellPairingPreview(body);
@@ -210,7 +226,7 @@ export function createMobileShellServer() {
         response.end(JSON.stringify(result, null, 2));
         return;
       }
-      if (["/api/reminders/action", "/api/ocr/commit", "/api/capture/start", "/api/discovery/scan", "/api/records", "/api/pairing/scan", "/api/pairing/trust", "/api/trusted-devices", "/api/sync/push", "/api/sync/demo-failure", "/api/sync/confirmation-action", "/api/sync/preview", "/api/sync/receive", "/api/sync/request", "/api/sync/request-result"].includes(url.pathname)) {
+      if (["/api/reminders/action", "/api/ocr/commit", "/api/capture/start", "/api/discovery/scan", "/api/records", "/api/backup/export", "/api/backup/verify", "/api/pairing/scan", "/api/pairing/trust", "/api/trusted-devices", "/api/sync/push", "/api/sync/demo-failure", "/api/sync/confirmation-action", "/api/sync/preview", "/api/sync/receive", "/api/sync/request", "/api/sync/request-result"].includes(url.pathname)) {
         response.writeHead(405, { "Content-Type": "application/json; charset=utf-8" });
         response.end(JSON.stringify({ error: "method-not-allowed" }));
         return;

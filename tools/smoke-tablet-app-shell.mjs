@@ -8,9 +8,11 @@ const sync = await import("../packages/sync-core/src/index.ts");
 const vaultPath = join(process.cwd(), ".tmp", "tablet-app-shell-smoke.vault-snapshot.json");
 const runtimeStatePath = join(process.cwd(), ".tmp", "tablet-app-shell-smoke.runtime-state.json");
 const deviceIdentityPath = join(process.cwd(), ".tmp", "tablet-app-shell-smoke.device-identity.json");
+const backupPackagePath = join(process.cwd(), ".tmp", "tablet-app-shell-smoke.backup-package.json");
 process.env.LOGINTO_TABLET_SHELL_VAULT_PATH = vaultPath;
 process.env.LOGINTO_TABLET_SHELL_RUNTIME_STATE_PATH = runtimeStatePath;
 process.env.LOGINTO_TABLET_DEVICE_IDENTITY_PATH = deviceIdentityPath;
+process.env.LOGINTO_TABLET_BACKUP_PACKAGE_PATH = backupPackagePath;
 await rm(vaultPath, { force: true });
 await rm(`${vaultPath}.tmp`, { force: true });
 await rm(`${vaultPath}.sync-deletions.json`, { force: true });
@@ -19,6 +21,8 @@ await rm(runtimeStatePath, { force: true });
 await rm(`${runtimeStatePath}.tmp`, { force: true });
 await rm(deviceIdentityPath, { force: true });
 await rm(`${deviceIdentityPath}.tmp`, { force: true });
+await rm(backupPackagePath, { force: true });
+await rm(`${backupPackagePath}.tmp`, { force: true });
 resetTabletShellRuntimeForTests();
 
 const htmlPath = join(process.cwd(), "apps/tablet/prototype/index.html");
@@ -29,6 +33,9 @@ const requiredSnippets = [
   "data-storage-copy",
   "data-storage-vault-path",
   "data-storage-runtime-path",
+  "data-tablet-backup-status",
+  "data-action=\"tablet-backup-export\"",
+  "data-action=\"tablet-backup-verify\"",
   "data-action=\"trust-desktop\"",
   "data-action=\"review-confirm\"",
   "data-tablet-activity",
@@ -64,6 +71,8 @@ const requiredSnippets = [
   "data-attachment-action=\"remove\"",
   "/api/records",
   "/api/attachments",
+  "/api/backup/export",
+  "/api/backup/verify",
   "data-notes-form",
   "提醒中心",
   "data-tablet-reminder-popup",
@@ -117,6 +126,9 @@ try {
   if (!appState.storage?.vaultPath?.includes(".tmp") || !appState.storage?.runtimeStatePath?.includes(".tmp")) {
     throw new Error("Expected tablet app-state to expose local storage paths");
   }
+  if (appState.storage?.backup?.targetPath !== backupPackagePath) {
+    throw new Error("Expected tablet app-state to expose local backup package path");
+  }
   if (!appState.deviceContainer.capabilities.some((capability) => capability.id === "large-screen-review")) {
     throw new Error("Expected tablet device container to expose large-screen review capability");
   }
@@ -155,6 +167,17 @@ try {
   const persistedRouterPassword = persistedRouterRecord?.fields.find((field) => field.key === "password");
   if (!persistedRouterPassword?.valueCipher?.startsWith("loginto-field-cipher-v1:") || persistedRouterPassword.valueCipher.includes("router-secret-2026")) {
     throw new Error("Expected tablet seeded password to be stored as encrypted field cipher");
+  }
+
+  const backup = await postJson(`${baseUrl}/api/backup/export`, {});
+  if (!backup.ok || backup.summary.format !== appState.storage.backup.format || backup.summary.records !== appState.runtime.records) {
+    throw new Error("Expected tablet backup export API to write an encrypted vault package");
+  }
+  const verifiedBackup = await postJson(`${baseUrl}/api/backup/verify`, {
+    packageJson: backup.packageJson
+  });
+  if (!verifiedBackup.ok || verifiedBackup.summary.records !== backup.summary.records) {
+    throw new Error("Expected tablet backup verify API to decrypt the exported package");
   }
 
   const reminderAlertId = appState.reminderCenter.pending[0].alertId;
@@ -324,6 +347,7 @@ try {
         pairingVerificationCode: trust.pairing.verificationCode,
         persistedVault: reloaded.storage.persistedVault,
         persistedRuntimeState: reloaded.storage.persistedRuntimeState,
+        backupRecords: verifiedBackup.summary.records,
         prototype: htmlPath
       },
       null,

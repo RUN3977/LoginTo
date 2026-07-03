@@ -23,6 +23,7 @@ const defaultSyncReceiptPath = join(workspaceRoot, ".tmp", "tablet-sync-receipts
 const defaultDeviceIdentityPath = join(workspaceRoot, ".tmp", "tablet-shell-preview.device-identity.json");
 const defaultSyncConfirmationPath = join(workspaceRoot, ".tmp", "tablet-sync-confirmations.json");
 const defaultTrustedDeviceRevocationPath = join(workspaceRoot, ".tmp", "tablet-trusted-device-revocations.json");
+const defaultBackupPackagePath = join(workspaceRoot, ".tmp", "tablet-shell-preview.backup-package.json");
 
 const now = () => "2026-06-25T09:00:00.000Z";
 const password = "tablet-shell-preview-password";
@@ -40,6 +41,34 @@ async function writeJsonFileAtomically(path, payload) {
     await rm(tempPath, { force: true });
     throw error;
   }
+}
+
+async function writeTextFileAtomically(path, text, verify) {
+  await mkdir(dirname(path), { recursive: true });
+  const tempPath = `${path}.tmp`;
+  try {
+    await writeFile(tempPath, text, "utf8");
+    if (verify) {
+      verify(await readFile(tempPath, "utf8"));
+    }
+    await rename(tempPath, path);
+  } catch (error) {
+    await rm(tempPath, { force: true });
+    throw error;
+  }
+}
+
+function createBackupPackageSummary(backupPackage, packageJson, recordCount) {
+  return {
+    format: backupPackage.format,
+    packageId: backupPackage.packageId,
+    vaultId: backupPackage.vaultId,
+    sourceDeviceId: backupPackage.sourceDeviceId,
+    createdAt: backupPackage.createdAt,
+    records: recordCount,
+    attachments: backupPackage.attachments.length,
+    bytes: Buffer.byteLength(packageJson, "utf8")
+  };
 }
 
 const ids = {
@@ -156,8 +185,13 @@ export async function createTabletShellAppState(input = {}) {
     storage: {
       vaultPath: getTabletVaultPath(),
       runtimeStatePath: getTabletRuntimeStatePath(),
+      backupPackagePath: getTabletBackupPackagePath(),
       persistedVault: Boolean(runtime.vaultStorage),
-      persistedRuntimeState: Boolean(runtime.runtimeStateStorage)
+      persistedRuntimeState: Boolean(runtime.runtimeStateStorage),
+      backup: {
+        format: vault.VAULT_PACKAGE_FORMAT,
+        targetPath: getTabletBackupPackagePath()
+      }
     },
     capabilities: [
       "large-screen local vault review",
@@ -198,6 +232,41 @@ async function hydrateTabletNotesPreview(runtime, viewState) {
 
 export function resetTabletShellRuntimeForTests() {
   tabletShellRuntimePromise = undefined;
+}
+
+export async function exportTabletShellBackupPackage(input = {}) {
+  const runtime = await getTabletShellRuntime();
+  await seedRuntime(runtime);
+  const backupPackage = await runtime.exportEncryptedBackupPackage();
+  const packageJson = runtime.serializeEncryptedBackupPackage(backupPackage);
+  const savedPath = input.backupPackagePath ?? getTabletBackupPackagePath();
+  await writeTextFileAtomically(savedPath, packageJson, (text) => vault.parseVaultPackage(text));
+
+  return {
+    ok: true,
+    savedPath,
+    packageJson,
+    summary: createBackupPackageSummary(backupPackage, packageJson, runtime.repository.listRecords().length),
+    appState: await createTabletShellAppState()
+  };
+}
+
+export async function verifyTabletShellBackupPackage(input = {}) {
+  const runtime = await getTabletShellRuntime();
+  await seedRuntime(runtime);
+  const backupPackagePath = input.backupPackagePath ?? getTabletBackupPackagePath();
+  const packageJson = input.packageJson ?? await readFile(backupPackagePath, "utf8");
+  const snapshot = await runtime.verifyEncryptedBackupPackage(packageJson);
+  return {
+    ok: true,
+    verifiedAt: now(),
+    summary: {
+      records: snapshot.records.length,
+      attachments: snapshot.records.reduce((count, record) => count + record.attachments.length, 0),
+      vaultId: snapshot.manifest.id,
+      backupPackagePath
+    }
+  };
 }
 
 export async function applyTabletShellReminderAction(input = {}) {
@@ -1489,6 +1558,10 @@ function getTabletVaultPath() {
 function getTabletRuntimeStatePath() {
   return process.env.LOGINTO_TABLET_SHELL_RUNTIME_STATE_PATH
     || mobileRuntimeState.createDefaultMobileRuntimeStatePath(getTabletVaultPath());
+}
+
+function getTabletBackupPackagePath() {
+  return process.env.LOGINTO_TABLET_BACKUP_PACKAGE_PATH || defaultBackupPackagePath;
 }
 
 function getSyncReceiptPath() {

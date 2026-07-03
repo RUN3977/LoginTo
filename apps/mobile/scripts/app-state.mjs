@@ -29,6 +29,7 @@ const defaultSyncReceiptPath = join(workspaceRoot, ".tmp", "mobile-sync-receipts
 const defaultDeviceIdentityPath = join(workspaceRoot, ".tmp", "mobile-shell-preview.device-identity.json");
 const defaultSyncConfirmationPath = join(workspaceRoot, ".tmp", "mobile-sync-confirmations.json");
 const defaultTrustedDeviceRevocationPath = join(workspaceRoot, ".tmp", "mobile-trusted-device-revocations.json");
+const defaultBackupPackagePath = join(workspaceRoot, ".tmp", "mobile-shell-preview.backup-package.json");
 
 const now = () => "2026-06-13T09:41:00.000Z";
 const password = "mobile-shell-preview-password";
@@ -46,6 +47,34 @@ async function writeJsonFileAtomically(path, payload) {
     await rm(tempPath, { force: true });
     throw error;
   }
+}
+
+async function writeTextFileAtomically(path, text, verify) {
+  await mkdir(dirname(path), { recursive: true });
+  const tempPath = `${path}.tmp`;
+  try {
+    await writeFile(tempPath, text, "utf8");
+    if (verify) {
+      verify(await readFile(tempPath, "utf8"));
+    }
+    await rename(tempPath, path);
+  } catch (error) {
+    await rm(tempPath, { force: true });
+    throw error;
+  }
+}
+
+function createBackupPackageSummary(backupPackage, packageJson, recordCount) {
+  return {
+    format: backupPackage.format,
+    packageId: backupPackage.packageId,
+    vaultId: backupPackage.vaultId,
+    sourceDeviceId: backupPackage.sourceDeviceId,
+    createdAt: backupPackage.createdAt,
+    records: recordCount,
+    attachments: backupPackage.attachments.length,
+    bytes: Buffer.byteLength(packageJson, "utf8")
+  };
 }
 
 const ids = {
@@ -194,8 +223,13 @@ export async function createMobileShellAppState() {
     storage: {
       vaultPath: getMobileVaultPath(),
       runtimeStatePath: getMobileRuntimeStatePath(),
+      backupPackagePath: getMobileBackupPackagePath(),
       persistedVault: Boolean(runtime.vaultStorage),
-      persistedRuntimeState: Boolean(runtime.runtimeStateStorage)
+      persistedRuntimeState: Boolean(runtime.runtimeStateStorage),
+      backup: {
+        format: vault.VAULT_PACKAGE_FORMAT,
+        targetPath: getMobileBackupPackagePath()
+      }
     },
     capabilities: [
       "local vault lookup",
@@ -233,6 +267,41 @@ async function hydrateMobileNotesPreview(runtime, viewState) {
       // Existing development-preview records can keep their legacy preview.
     }
   }
+}
+
+export async function exportMobileShellBackupPackage(input = {}) {
+  const runtime = await getMobileShellRuntime();
+  await seedRuntime(runtime);
+  const backupPackage = await runtime.exportEncryptedBackupPackage();
+  const packageJson = runtime.serializeEncryptedBackupPackage(backupPackage);
+  const savedPath = input.backupPackagePath ?? getMobileBackupPackagePath();
+  await writeTextFileAtomically(savedPath, packageJson, (text) => vault.parseVaultPackage(text));
+
+  return {
+    ok: true,
+    savedPath,
+    packageJson,
+    summary: createBackupPackageSummary(backupPackage, packageJson, runtime.repository.listRecords().length),
+    appState: await createMobileShellAppState()
+  };
+}
+
+export async function verifyMobileShellBackupPackage(input = {}) {
+  const runtime = await getMobileShellRuntime();
+  await seedRuntime(runtime);
+  const backupPackagePath = input.backupPackagePath ?? getMobileBackupPackagePath();
+  const packageJson = input.packageJson ?? await readFile(backupPackagePath, "utf8");
+  const snapshot = await runtime.verifyEncryptedBackupPackage(packageJson);
+  return {
+    ok: true,
+    verifiedAt: now(),
+    summary: {
+      records: snapshot.records.length,
+      attachments: snapshot.records.reduce((count, record) => count + record.attachments.length, 0),
+      vaultId: snapshot.manifest.id,
+      backupPackagePath
+    }
+  };
 }
 
 function createMobileReminderCenter(viewState, dueNotifications, notificationState) {
@@ -1867,6 +1936,10 @@ function getMobileVaultPath() {
 function getMobileRuntimeStatePath() {
   return process.env.LOGINTO_MOBILE_SHELL_RUNTIME_STATE_PATH
     || mobileRuntimeState.createDefaultMobileRuntimeStatePath(getMobileVaultPath());
+}
+
+function getMobileBackupPackagePath() {
+  return process.env.LOGINTO_MOBILE_BACKUP_PACKAGE_PATH || defaultBackupPackagePath;
 }
 
 function getSyncReceiptPath() {
