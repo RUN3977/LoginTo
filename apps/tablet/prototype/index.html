@@ -1,0 +1,2394 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LoginTo Tablet Prototype</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --paper: #ffffff;
+      --soft: #f4f7fb;
+      --line: #d8dee8;
+      --blue: #1d4ed8;
+      --green: #047857;
+      --amber: #b45309;
+      --red: #b42318;
+      --shadow: 0 18px 48px rgba(23, 32, 51, 0.14);
+      font-family: Inter, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: #e9eef5;
+      letter-spacing: 0;
+    }
+
+    button, textarea {
+      font: inherit;
+    }
+
+    input, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .tablet {
+      width: min(1180px, calc(100% - 32px));
+      min-height: 760px;
+      margin: 16px auto;
+      border: 12px solid #111827;
+      border-radius: 28px;
+      overflow: hidden;
+      background: var(--soft);
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      min-height: 76px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 25px;
+      line-height: 1.15;
+    }
+
+    .sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--blue);
+      background: #dbeafe;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 252px minmax(420px, 1fr) 324px;
+      min-height: 684px;
+    }
+
+    .rail,
+    .side {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .side {
+      border-right: 0;
+      border-left: 1px solid var(--line);
+    }
+
+    .main {
+      padding: 16px;
+      background: var(--soft);
+    }
+
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .record-editor {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .record-editor input,
+    .record-editor select,
+    .record-editor textarea {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .record-editor textarea {
+      grid-column: 1 / -1;
+      min-height: 58px;
+      resize: vertical;
+    }
+
+    .record-editor .actions {
+      grid-column: 1 / -1;
+      margin-top: 0;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .section-head h2 {
+      font-size: 15px;
+    }
+
+    .section-head span {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .stat,
+    .panel,
+    .record,
+    .queue-item,
+    .detail-row {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .stat {
+      min-height: 74px;
+      padding: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .queue,
+    .activity,
+    .detail-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .queue-item {
+      padding: 12px;
+    }
+
+    .queue-item strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .queue-item span,
+    .detail-row span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .records {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .record {
+      min-height: 132px;
+      padding: 13px;
+      text-align: left;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .record:hover,
+    .record.active {
+      border-color: #93c5fd;
+      box-shadow: 0 10px 24px rgba(29, 78, 216, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .record.active {
+      outline: 2px solid #bfdbfe;
+      outline-offset: 0;
+    }
+
+    .record-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .record h3 {
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .record p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tag {
+      padding: 5px 8px;
+      border-radius: 7px;
+      color: var(--green);
+      background: #dcfce7;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .panel {
+      padding: 13px;
+    }
+
+    .panel + .panel {
+      margin-top: 10px;
+    }
+
+    .panel p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .sync-review-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sync-review-item {
+      min-height: 58px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .sync-review-item span,
+    .sync-review-list li {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .sync-review-item strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    .security-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .security-stat {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .security-stat span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .security-stat strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .sync-review-list {
+      display: grid;
+      gap: 6px;
+      max-height: 130px;
+      overflow: auto;
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+
+    .conflict-list,
+    .conflict-options,
+    .field-merge-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .conflict-card {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .conflict-options label,
+    .field-merge-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      color: var(--ink);
+      font-size: 12px;
+    }
+
+    .conflict-diff {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .conflict-version {
+      display: grid;
+      gap: 4px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+      min-width: 0;
+    }
+
+    .conflict-version strong,
+    .conflict-version span {
+      overflow-wrap: anywhere;
+    }
+
+    .conflict-option-help {
+      min-height: 20px;
+      margin-top: 8px;
+    }
+
+    .field-merge-row {
+      justify-content: space-between;
+      padding: 8px;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .reminder-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 10px 0 8px;
+    }
+
+    .reminder-tab {
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .reminder-tab.active {
+      color: var(--blue);
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+
+    .reminder-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .reminder-card {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid #f2c98f;
+      border-radius: 8px;
+      background: #fff7ed;
+    }
+
+    .reminder-card[data-source="upcoming"] {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+
+    .reminder-card[data-source="history"] {
+      border-color: var(--line);
+      background: #f8fafc;
+    }
+
+    .reminder-card-head,
+    .reminder-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .reminder-actions {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .button {
+      min-height: 38px;
+      border-radius: 8px;
+      color: #ffffff;
+      background: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .button.green { background: var(--green); }
+    .button.amber { background: var(--amber); }
+    .button.red { background: var(--red); }
+
+    .activity-item {
+      display: grid;
+      grid-template-columns: 8px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      font-size: 12px;
+    }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .activity-time {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .attachments {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .attachment {
+      min-height: 150px;
+      padding: 12px;
+      border: 1px dashed #9aa4b2;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .attachment-preview {
+      display: grid;
+      place-items: center;
+      height: 82px;
+      border-radius: 8px;
+      color: #ffffff;
+      background: linear-gradient(135deg, #1d4ed8, #047857);
+      font-weight: 900;
+    }
+
+    .attachment span {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .detail-row {
+      padding: 10px;
+    }
+
+    .detail-row strong {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .notes-form {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 86px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--ink);
+      background: #ffffff;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 900px) {
+      .tablet {
+        width: 100%;
+        min-height: 100vh;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+      }
+
+      .topbar,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .rail,
+      .side {
+        border: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .records,
+      .attachments {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="tablet">
+    <header class="topbar">
+      <div>
+        <h1>LoginTo 平板整理台</h1>
+        <p class="sub">本地保险库大屏校对，适合附件复核、批量整理和家庭备用设备。</p>
+      </div>
+      <div class="status">
+        <span class="pill">本地模式</span>
+        <span class="pill" data-status-device>Tablet Shell</span>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="rail">
+        <div class="section">
+          <div class="section-head">
+            <h2>概览</h2>
+            <span>实时状态</span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat"><strong data-stat="records">4</strong><span>记录</span></div>
+            <div class="stat"><strong data-stat="alerts">1</strong><span>提醒</span></div>
+            <div class="stat"><strong data-stat="trusted">0</strong><span>可信设备</span></div>
+            <div class="stat"><strong data-stat="drafts">2</strong><span>待整理</span></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <h2>整理队列</h2>
+            <span>OCR/附件</span>
+          </div>
+          <div class="queue" data-review-queue>
+            <div class="queue-item"><strong>Airport Lounge VIP</strong><span>OCR 字段待确认</span></div>
+            <div class="queue-item"><strong>Passport</strong><span>附件需要校对</span></div>
+          </div>
+        </div>
+
+        <div class="section" data-tablet-security-panel>
+          <div class="section-head">
+            <h2>本地保险箱安全</h2>
+            <span data-tablet-security-lock-state>等待加载</span>
+          </div>
+          <div class="security-grid">
+            <div class="security-stat"><span>敏感字段</span><strong data-tablet-security-sensitive-count>0 项</strong></div>
+            <div class="security-stat"><span>二次解锁</span><strong data-tablet-security-second-unlock>未开启</strong></div>
+            <div class="security-stat"><span>复制清理</span><strong data-tablet-security-copy-clear>30 秒</strong></div>
+            <div class="security-stat"><span>自动锁定</span><strong data-tablet-security-autolock>300 秒</strong></div>
+          </div>
+          <p data-tablet-security-copy style="margin-top:8px">平板端用于整理与复核；敏感明文只在本机临时解锁后显示。</p>
+        </div>
+      </aside>
+
+      <section class="main">
+        <div class="section">
+          <div class="section-head">
+            <h2>保险库记录</h2>
+            <span>本机增删改查</span>
+          </div>
+          <form class="record-editor" data-tablet-record-form>
+            <select name="type" aria-label="记录类型">
+              <option value="account">网站账号</option>
+              <option value="membership">会员</option>
+              <option value="bank_card">银行卡</option>
+              <option value="identity_document">证件</option>
+            </select>
+            <input name="title" placeholder="标题，例如家庭备用卡" required>
+            <input name="account" placeholder="账号/卡号/会员号">
+            <input name="reminderAt" type="date" aria-label="提醒日期">
+            <textarea name="notes" placeholder="备注或自动整理说明"></textarea>
+            <div class="actions">
+              <button class="button green" type="submit">新增记录</button>
+              <button class="button amber" type="button" data-action="tablet-update-record">更新当前</button>
+              <button class="button red" type="button" data-action="tablet-delete-record">删除当前</button>
+            </div>
+          </form>
+          <div class="records" data-records></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <h2>附件校对</h2>
+            <span>加密附件</span>
+          </div>
+          <div class="attachments">
+            <div class="attachment">
+              <div class="attachment-preview">OCR</div>
+              <span>会员卡照片已加密，确认字段后写入本地保险库。</span>
+            </div>
+            <div class="attachment">
+              <div class="attachment-preview">ID</div>
+              <span>证件附件需要二次解锁后查看明文字段。</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="panel">
+          <div class="section-head">
+            <h2 data-detail-title>记录详情</h2>
+            <span data-detail-type>未选择</span>
+          </div>
+          <p data-detail-summary>选择一条记录后查看字段、提醒、附件和整理状态。</p>
+          <div class="detail-list" data-detail-fields></div>
+          <form class="notes-form" data-notes-form>
+            <textarea name="notes" placeholder="补充整理备注，例如：照片已核对，会员号可信。"></textarea>
+            <button class="button amber" type="submit">保存整理备注</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>提醒中心</h2>
+            <span data-alert-count>0 条</span>
+          </div>
+          <div class="capture-summary" data-tablet-reminder-popup>
+            <div class="capture-summary-row"><span data-tablet-reminder-popup-title>提醒弹窗</span><strong data-tablet-reminder-popup-status>待处理</strong></div>
+            <p data-tablet-reminder-popup-body>暂无到期提醒</p>
+            <div class="actions" data-tablet-reminder-popup-actions hidden>
+              <button class="button green" type="button" data-tablet-reminder-popup-action="complete">完成</button>
+              <button class="button amber" type="button" data-tablet-reminder-popup-action="snooze">稍后</button>
+              <button class="button red" type="button" data-tablet-reminder-popup-action="dismiss">忽略</button>
+            </div>
+          </div>
+          <div class="reminder-tabs" data-tablet-reminder-tabs></div>
+          <div class="reminder-list" data-tablet-reminder-list></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>面对面同步</h2>
+            <span data-sync-count>0 台</span>
+          </div>
+          <p>平板端可作为第三终端，扫描桌面或手机后加入可信设备列表，再通过近场传输交换变更。</p>
+          <p data-tablet-sync-preview style="margin-top:8px">同步请求：暂无</p>
+          <p data-tablet-sync-records style="margin-top:8px">涉及记录：暂无</p>
+          <p data-tablet-sync-receipt style="margin-top:8px">最近同步：暂无</p>
+          <div class="reminder-list" data-tablet-connection-state></div>
+          <div class="reminder-list" data-tablet-sync-center></div>
+          <div class="reminder-list" data-tablet-trusted-devices></div>
+          <div class="reminder-list" data-tablet-sync-audit-log></div>
+          <p data-tablet-discovery-probes style="margin-top:8px">近场探测：等待扫描</p>
+          <div class="reminder-list" data-tablet-near-field-candidates></div>
+          <div class="pairing-inputs" data-tablet-pairing-inputs>
+            <label class="field">
+              <span>QR payload</span>
+              <textarea data-tablet-pairing-payload rows="3" placeholder="Paste desktop QR payload"></textarea>
+            </label>
+            <label class="field">
+              <span>6 位校验码</span>
+              <input data-tablet-pairing-code inputmode="numeric" maxlength="6" placeholder="000000">
+            </label>
+            <label class="field">
+              <span>二维码图片</span>
+              <input type="file" accept="image/*" data-tablet-pairing-image>
+            </label>
+            <p data-tablet-pairing-input-status style="margin-top:8px">可粘贴桌面二维码内容；留空时使用本机预览桌面。</p>
+          </div>
+          <div class="actions">
+            <button class="button" type="button" data-action="trust-desktop">信任桌面</button>
+            <button class="button" type="button" data-action="discovery-scan">扫描近场设备</button>
+            <button class="button" type="button" data-action="sync-push">同步到桌面</button>
+            <button class="button green" type="button" data-action="review-confirm">确认整理</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>整理日志</h2>
+            <span>本机事件</span>
+          </div>
+          <div class="activity" data-tablet-activity>
+            <div class="activity-item"><span class="activity-dot"></span><span>等待大屏整理操作</span><span class="activity-time">现在</span></div>
+            <div class="activity-item"><span class="activity-dot"></span><span>附件候选尚未确认</span><span class="activity-time">待整理</span></div>
+            <div class="activity-item"><span class="activity-dot"></span><span>桌面设备尚未信任</span><span class="activity-time">待配对</span></div>
+          </div>
+        </div>
+
+        <div class="panel" data-tablet-sync-review-panel hidden>
+          <div class="section-head">
+            <h2>确认本次同步</h2>
+            <span>每次都需确认</span>
+          </div>
+          <p>确认后才会交换加密同步包；摘要会先显示发送、接收和冲突记录。</p>
+          <div class="sync-review-grid">
+            <div class="sync-review-item"><span>对方设备</span><strong data-tablet-sync-review-peer>--</strong></div>
+            <div class="sync-review-item"><span>请求时间</span><strong data-tablet-sync-review-time>--</strong></div>
+            <div class="sync-review-item"><span>有效至</span><strong data-tablet-sync-review-expires>--</strong></div>
+            <div class="sync-review-item"><span>连接方式</span><strong data-tablet-sync-review-transport>--</strong></div>
+            <div class="sync-review-item"><span>对方地址</span><strong data-tablet-sync-review-peer-url>--</strong></div>
+            <div class="sync-review-item"><span>设备指纹</span><strong data-tablet-sync-review-fingerprint>--</strong></div>
+            <div class="sync-review-item"><span>公网登录</span><strong data-tablet-sync-review-public-network>--</strong></div>
+            <div class="sync-review-item"><span>变更摘要</span><strong data-tablet-sync-review-summary>--</strong></div>
+            <div class="sync-review-item"><span>信任状态</span><strong data-tablet-sync-review-trust>--</strong></div>
+          </div>
+          <ul class="sync-review-list" data-tablet-sync-review-records></ul>
+          <div class="actions">
+            <button class="button amber" type="button" data-tablet-sync-review-cancel>取消同步</button>
+            <button class="button" type="button" data-tablet-sync-review-peer-reject>对方拒绝</button>
+            <button class="button" type="button" data-tablet-sync-review-timeout>等待超时</button>
+            <button class="button green" type="button" data-tablet-sync-review-confirm>确认同步</button>
+          </div>
+        </div>
+
+        <div class="panel" data-tablet-conflict-panel hidden>
+          <div class="section-head">
+            <h2>处理同步冲突</h2>
+            <span>确认前不写入</span>
+          </div>
+          <p>请选择每条冲突记录的处理方式；手动合并可逐字段选择本机或桌面版本。</p>
+          <p data-tablet-conflict-decision-summary>等待选择冲突处理方式</p>
+          <div class="conflict-list" data-tablet-conflict-list></div>
+          <div class="actions">
+            <button class="button amber" type="button" data-tablet-conflict-cancel>取消</button>
+            <button class="button green" type="button" data-tablet-conflict-confirm>确认处理</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h2>本地存储</h2>
+            <span>snapshot</span>
+          </div>
+          <p data-storage-copy>Vault 与 runtime-state 将保存到本机 .tmp 文件。</p>
+          <p data-storage-vault-path>Vault：等待加载</p>
+          <p data-storage-runtime-path>runtime-state：等待加载</p>
+          <p data-tablet-backup-status>备份：尚未导出</p>
+          <div class="actions">
+            <button class="button" type="button" data-action="tablet-backup-export">导出本机备份</button>
+            <button class="button" type="button" data-action="tablet-backup-verify">验证备份</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const tabletActivity = document.querySelector("[data-tablet-activity]");
+    const tabletSyncReviewPanel = document.querySelector("[data-tablet-sync-review-panel]");
+    const tabletSyncReviewPeer = document.querySelector("[data-tablet-sync-review-peer]");
+    const tabletSyncReviewTime = document.querySelector("[data-tablet-sync-review-time]");
+    const tabletSyncReviewExpires = document.querySelector("[data-tablet-sync-review-expires]");
+    const tabletSyncReviewTransport = document.querySelector("[data-tablet-sync-review-transport]");
+    const tabletSyncReviewPeerUrl = document.querySelector("[data-tablet-sync-review-peer-url]");
+    const tabletSyncReviewFingerprint = document.querySelector("[data-tablet-sync-review-fingerprint]");
+    const tabletSyncReviewPublicNetwork = document.querySelector("[data-tablet-sync-review-public-network]");
+    const tabletSyncReviewSummary = document.querySelector("[data-tablet-sync-review-summary]");
+    const tabletSyncReviewTrust = document.querySelector("[data-tablet-sync-review-trust]");
+    const tabletSyncReviewRecords = document.querySelector("[data-tablet-sync-review-records]");
+    const tabletSyncReviewConfirm = document.querySelector("[data-tablet-sync-review-confirm]");
+    const tabletSyncReviewCancel = document.querySelector("[data-tablet-sync-review-cancel]");
+    const tabletSyncReviewPeerReject = document.querySelector("[data-tablet-sync-review-peer-reject]");
+    const tabletSyncReviewTimeout = document.querySelector("[data-tablet-sync-review-timeout]");
+    const tabletConflictPanel = document.querySelector("[data-tablet-conflict-panel]");
+    const tabletConflictList = document.querySelector("[data-tablet-conflict-list]");
+    const tabletConflictConfirm = document.querySelector("[data-tablet-conflict-confirm]");
+    const tabletConflictCancel = document.querySelector("[data-tablet-conflict-cancel]");
+    const tabletRecordForm = document.querySelector("[data-tablet-record-form]");
+    const tabletReminderTabs = document.querySelector("[data-tablet-reminder-tabs]");
+    const tabletReminderList = document.querySelector("[data-tablet-reminder-list]");
+    const tabletReminderPopup = document.querySelector("[data-tablet-reminder-popup]");
+    const tabletReminderPopupActions = document.querySelector("[data-tablet-reminder-popup-actions]");
+    const tabletNearFieldCandidates = document.querySelector("[data-tablet-near-field-candidates]");
+    const tabletDiscoveryProbes = document.querySelector("[data-tablet-discovery-probes]");
+    const tabletSecurityLockState = document.querySelector("[data-tablet-security-lock-state]");
+    const tabletSecuritySensitiveCount = document.querySelector("[data-tablet-security-sensitive-count]");
+    const tabletSecuritySecondUnlock = document.querySelector("[data-tablet-security-second-unlock]");
+    const tabletSecurityCopyClear = document.querySelector("[data-tablet-security-copy-clear]");
+    const tabletSecurityAutolock = document.querySelector("[data-tablet-security-autolock]");
+    const tabletSecurityCopy = document.querySelector("[data-tablet-security-copy]");
+    let currentState;
+    let selectedRecordId;
+    let currentNearFieldDiscovery;
+    let activeReminderFilter = "all";
+
+    function logTabletAction(message, tone = "ok") {
+      const item = document.createElement("div");
+      item.className = "activity-item";
+      item.innerHTML = `
+        <span class="activity-dot" style="background:${tone === "error" ? "var(--red)" : tone === "sync" ? "var(--blue)" : "var(--green)"}"></span>
+        <span></span>
+        <span class="activity-time">${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</span>
+      `;
+      item.querySelector("span:nth-child(2)").textContent = message;
+      tabletActivity.prepend(item);
+      while (tabletActivity.children.length > 4) {
+        tabletActivity.lastElementChild.remove();
+      }
+    }
+
+    async function loadState() {
+      const response = await fetch("/api/app-state");
+      if (!response.ok) {
+        throw new Error(`app-state ${response.status}`);
+      }
+      const state = await response.json();
+      renderState(state);
+    }
+
+    function renderState(state) {
+      currentState = state;
+      const recentRecords = state.viewState.recent ?? [];
+      if (!selectedRecordId || !recentRecords.some((record) => record.id === selectedRecordId)) {
+        selectedRecordId = recentRecords[0]?.id ?? state.selectedRecord?.id;
+      }
+
+      document.querySelector("[data-status-device]").textContent = state.runtime.deviceId;
+      document.querySelector("[data-stat='records']").textContent = state.runtime.records;
+      document.querySelector("[data-stat='alerts']").textContent = state.runtime.dueReminders;
+      document.querySelector("[data-stat='trusted']").textContent = state.runtime.trustedDevices;
+      document.querySelector("[data-stat='drafts']").textContent = state.reviewQueue.pendingOcrDrafts;
+      document.querySelector("[data-sync-count]").textContent = `${state.runtime.trustedDevices} 台`;
+      document.querySelector("[data-storage-copy]").textContent = `Vault: ${state.storage.persistedVault ? "已持久化" : "未持久化"}，runtime-state: ${state.storage.persistedRuntimeState ? "已持久化" : "未持久化"}`;
+      document.querySelector("[data-storage-vault-path]").textContent = `Vault：${state.storage.vaultPath}`;
+      document.querySelector("[data-storage-runtime-path]").textContent = `runtime-state：${state.storage.runtimeStatePath}`;
+      document.querySelector("[data-tablet-backup-status]").textContent = `备份：${state.storage.backup?.targetPath ?? "等待导出"}`;
+      renderSyncPanel(state.syncPanel);
+      renderTabletNearFieldCandidates(state.syncPanel?.discovery);
+      renderTabletTrustedDevices(state.syncPanel?.trustedDeviceSummaries, state.syncPanel?.trustedDeviceRevocations);
+      const receipt = state.syncPanel?.lastReceiptSummary ?? state.syncPanel?.lastReceipt;
+      document.querySelector("[data-tablet-sync-receipt]").textContent = receipt
+        ? receipt.displayLabel ?? receipt.label ?? `最近同步：${receipt.peerName || receipt.senderName || "未知设备"} · ${receipt.status || "success"} · 发送 ${receipt.sentCount ?? 0} 条 · 接收 ${receipt.receivedCount ?? 0} 条 · 冲突 ${receipt.conflictCount ?? receipt.conflicts ?? 0} 条`
+        : "最近同步：暂无";
+
+      document.querySelector("[data-alert-count]").textContent = `${state.reminderCenter?.items?.length ?? 0} 条`;
+      renderTabletReminderCenter(state.reminderCenter);
+
+      renderRecords(recentRecords);
+      renderQueue(state.reviewQueue.attachmentCandidates ?? []);
+      renderDetail();
+      renderTabletSecurityPanel(state.security, recentRecords);
+      renderTabletConnectionState(state.syncPanel?.connectionState ?? state.syncPanel?.syncCenter?.connectionState);
+      renderTabletSyncCenter(state.syncPanel?.syncCenter);
+      renderTabletSyncAuditLog(state.syncPanel?.recentReceipts);
+    }
+
+    function renderTabletConnectionState(connection) {
+      const node = document.querySelector("[data-tablet-connection-state]");
+      if (!node) return;
+      node.replaceChildren();
+      const card = document.createElement("article");
+      card.className = "reminder-card";
+      card.dataset.source = connection?.stage === "offline" || connection?.stage === "failed" ? "due" : "upcoming";
+      card.innerHTML = `
+        <div class="reminder-card-head">
+          <strong></strong>
+          <span class="tag"></span>
+        </div>
+        <p></p>
+        <p></p>
+        <div class="reminder-actions" data-tablet-connection-steps></div>
+        <div class="reminder-actions">
+          <button class="button" type="button" data-tablet-sync-center-action="">执行下一步</button>
+        </div>
+      `;
+      card.querySelector("strong").textContent = connection?.label ?? "等待近场连接";
+      card.querySelector(".tag").textContent = connection?.stage ?? "idle";
+      card.querySelector("p").textContent = connection?.summary ?? "同步只会在本地可通讯设备之间开始。";
+      card.querySelector("p:nth-of-type(2)").textContent = [
+        `对方：${connection?.peerDevice?.name ?? "未选择"}`,
+        `连接：${connection?.transport ?? "待扫描"}`,
+        `需信任：${connection?.requiresFaceToFaceTrust ? "是" : "否"}`,
+        `需确认：${connection?.requiresLocalConfirmation ? "是" : "否"}`,
+        `公网登录：${connection?.publicNetworkLogin ? "是" : "否"}`,
+        `下一步：${connection?.nextAction ?? "scan"}`
+      ].join(" · ");
+      const steps = card.querySelector("[data-tablet-connection-steps]");
+      for (const step of connection?.steps ?? []) {
+        const item = document.createElement("span");
+        item.className = "tag";
+        item.textContent = `${step.label} · ${step.status}`;
+        steps.append(item);
+      }
+      const nextButton = card.querySelector("[data-tablet-sync-center-action]");
+      const nextAction = mapConnectionNextAction(connection?.nextAction);
+      nextButton.dataset.tabletSyncCenterAction = nextAction;
+      if (nextAction === "retry-sync") {
+        nextButton.dataset.tabletSyncRetryRequest = JSON.stringify(createTabletConnectionRetryRequest(connection));
+      }
+      nextButton.textContent = formatConnectionNextActionLabel(connection?.nextAction);
+      node.append(card);
+    }
+
+    function mapConnectionNextAction(action) {
+      if (action === "scan" || action === "wait") return "rescan";
+      if (action === "pair" || action === "repair-pairing") return "repair-pairing";
+      if (action === "retry-sync") return "retry-sync";
+      if (action === "done") return "rescan";
+      return "review-sync";
+    }
+
+    function formatConnectionNextActionLabel(action) {
+      if (action === "scan") return "扫描近场设备";
+      if (action === "pair") return "面对面配对";
+      if (action === "repair-pairing") return "重新配对";
+      if (action === "retry-sync") return "重试同步";
+      if (action === "done") return "再次扫描";
+      if (action === "wait") return "等待对方响应";
+      return "查看同步摘要";
+    }
+
+    function createTabletConnectionRetryRequest(connection) {
+      return {
+        desktopBaseUrl: connection?.peerEndpoint,
+        desktopDeviceId: connection?.peerDevice?.id,
+        desktopDeviceName: connection?.peerDevice?.name,
+        desktopPublicKeyBase64: connection?.peerDevice?.publicKeyBase64
+      };
+    }
+
+    function renderTabletSyncCenter(center) {
+      const node = document.querySelector("[data-tablet-sync-center]");
+      if (!node) return;
+      node.replaceChildren();
+      const card = document.createElement("article");
+      card.className = "reminder-card";
+      card.dataset.source = center?.status === "needs-attention" ? "due" : "history";
+      card.innerHTML = `
+        <div class="reminder-card-head">
+          <strong></strong>
+          <span class="tag"></span>
+        </div>
+        <p></p>
+        <p></p>
+        <div class="reminder-actions">
+          <button class="button" type="button" data-tablet-sync-center-action="rescan">扫描</button>
+          <button class="button" type="button" data-tablet-sync-center-action="review-sync">摘要</button>
+          <button class="button" type="button" data-tablet-sync-center-action="repair-pairing">配对</button>
+        </div>
+        <div class="reminder-list" data-tablet-sync-center-items></div>
+      `;
+      card.querySelector("strong").textContent = center?.headline ?? "本地同步中心";
+      card.querySelector(".tag").textContent = center?.statusLabel ?? "需要配对";
+      card.querySelector("p").textContent = center?.guidance ?? "首次连接必须面对面扫码并核对 6 位校验码。";
+      card.querySelector("p:nth-of-type(2)").textContent = `可信 ${center?.trustedCount ?? 0} · 待确认 ${center?.pendingCount ?? 0} · 失败 ${center?.failureCount ?? 0} · 已撤销 ${center?.revokedCount ?? 0}`;
+      const list = card.querySelector("[data-tablet-sync-center-items]");
+      const items = center?.items?.length
+        ? center.items
+        : [{ title: center?.actionLabel ?? "面对面配对", copy: center?.guidance ?? "靠近另一台设备后开始。", action: center?.status === "pairing-needed" ? "repair-pairing" : "rescan" }];
+      for (const item of items) {
+        const itemCard = document.createElement("article");
+        itemCard.className = "reminder-card";
+        itemCard.dataset.source = item.kind === "failure" ? "due" : "history";
+        itemCard.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <button class="button" type="button">处理</button>
+          </div>
+          <p></p>
+          <p data-sync-center-item-detail></p>
+        `;
+        itemCard.querySelector("button").dataset.tabletSyncCenterAction = item.action ?? "rescan";
+        if (item.confirmationId) {
+          itemCard.querySelector("button").dataset.syncConfirmationId = item.confirmationId;
+        }
+        if (item.retryRequest) {
+          itemCard.querySelector("button").dataset.tabletSyncRetryRequest = JSON.stringify(item.retryRequest);
+        }
+        itemCard.querySelector("strong").textContent = item.title;
+        itemCard.querySelector("p").textContent = item.copy;
+        itemCard.querySelector("[data-sync-center-item-detail]").textContent = item.detail ? `错误详情：${item.detail}` : "";
+        list.append(itemCard);
+      }
+      node.append(card);
+    }
+
+    function renderTabletSyncAuditLog(receipts = []) {
+      const node = document.querySelector("[data-tablet-sync-audit-log]");
+      if (!node) return;
+      node.replaceChildren();
+      if (!receipts.length) {
+        const empty = document.createElement("article");
+        empty.className = "reminder-card";
+        empty.dataset.source = "history";
+        empty.innerHTML = "<strong>暂无同步日志</strong><p>完成或失败的本地同步会保留在这里。</p>";
+        node.append(empty);
+        return;
+      }
+      for (const receipt of receipts) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = receipt.status === "failure" ? "due" : "history";
+        const direction = receipt.direction === "incoming" ? "接收" : receipt.direction === "outgoing" ? "发送" : "同步";
+        const syncedAt = receipt.syncedAt ? new Date(receipt.syncedAt).toLocaleString("zh-CN", { hour12: false }) : "未知时间";
+        const recoveryActions = receipt.recoveryActions ?? [];
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="tag">${receipt.status === "failure" ? "失败" : "成功"}</span>
+          </div>
+          <p></p>
+          <p ${receipt.status === "failure" ? "" : "hidden"}></p>
+          <div class="reminder-actions" ${receipt.status === "failure" ? "" : "hidden"}>
+            <button class="button" type="button" data-tablet-sync-recovery-action="rescan" ${recoveryActions.includes("rescan") ? "" : "hidden"}>重新扫描</button>
+            <button class="button" type="button" data-tablet-sync-recovery-action="retry-sync" ${recoveryActions.includes("retry-sync") && receipt.retryRequest ? "" : "hidden"}>重试同步</button>
+            <button class="button" type="button" data-tablet-sync-recovery-action="repair" ${recoveryActions.includes("repair-pairing") ? "" : "hidden"}>重新配对</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = `${direction} · ${receipt.peerName ?? "未知设备"}`;
+        card.querySelectorAll("[data-tablet-sync-recovery-action]").forEach((recoveryButton) => {
+          if (receipt.retryRequest) {
+            recoveryButton.dataset.tabletSyncRetryRequest = JSON.stringify(receipt.retryRequest);
+          }
+        });
+        card.querySelector("p").textContent = `${syncedAt} · ${receipt.transport ?? "local-network"} · 发 ${receipt.sentCount ?? 0} / 收 ${receipt.receivedCount ?? 0} / 冲突 ${receipt.conflictCount ?? 0}${receipt.failureReason ? ` · ${receipt.recoveryTitle}` : receipt.error ? ` · ${receipt.error}` : ""}`;
+        if (receipt.displayLabel) {
+          card.querySelector("p").textContent += ` · ${receipt.displayLabel}`;
+        }
+        card.querySelector("p:nth-of-type(2)").textContent = receipt.status === "failure"
+          ? `${receipt.recoveryCopy ?? ""}${receipt.recoveryDetail ? ` · 错误详情：${receipt.recoveryDetail}` : ""}`
+          : "";
+        node.append(card);
+      }
+    }
+
+    function renderTabletTrustedDevices(devices = [], revocations = []) {
+      const node = document.querySelector("[data-tablet-trusted-devices]");
+      if (!node) return;
+      node.replaceChildren();
+      if (!devices.length && !revocations.length) {
+        const empty = document.createElement("article");
+        empty.className = "reminder-card";
+        empty.dataset.source = "due";
+        empty.innerHTML = "<strong>暂无可信设备</strong><p>首次连接需要面对面扫码并确认 6 位校验码。</p>";
+        node.append(empty);
+        return;
+      }
+      for (const device of devices) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = device.status === "needs-repairing" ? "due" : "history";
+        const lastSync = device.lastSyncAt ? new Date(device.lastSyncAt).toLocaleString("zh-CN", { hour12: false }) : "尚未同步";
+        const lastSeen = device.lastSeenAt ? new Date(device.lastSeenAt).toLocaleString("zh-CN", { hour12: false }) : "等待近场发现";
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="tag"></span>
+          </div>
+          <p></p>
+          <p></p>
+          <div data-tablet-device-detail hidden></div>
+          <div class="reminder-actions">
+            <button class="button" type="button" data-tablet-device-detail-action="toggle">查看详情</button>
+            <button class="button" type="button" data-tablet-sync-recovery-action="repair">重新配对</button>
+            <button class="button" type="button" data-tablet-trusted-device-action="revoke" data-device-id="${escapeHtml(device.id)}" data-device-name="${escapeHtml(device.name)}">撤销信任</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = `${device.name} · ${device.kind}`;
+        card.querySelector(".tag").textContent = device.statusLabel;
+        card.querySelector("p").textContent = `指纹 ${device.publicKeyFingerprint} · 上次同步：${lastSync} · 最近发现：${lastSeen}`;
+        card.querySelector("p:nth-of-type(2)").textContent = device.reason;
+        card.querySelector("[data-tablet-device-detail]").textContent = `设备 ID：${device.id} · 首次信任：${device.trustedAt ? new Date(device.trustedAt).toLocaleString("zh-CN", { hour12: false }) : "未知"} · 操作：${device.actionLabel} · 恢复：需要时可重新面对面配对`;
+        node.append(card);
+      }
+      for (const event of revocations) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = "history";
+        const revokedAt = event.revokedAt ? new Date(event.revokedAt).toLocaleString("zh-CN", { hour12: false }) : "未知时间";
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="tag">已撤销</span>
+          </div>
+          <p></p>
+          <p></p>
+          <div data-tablet-device-detail hidden></div>
+          <div class="reminder-actions">
+            <button class="button" type="button" data-tablet-device-detail-action="toggle">查看详情</button>
+            <button class="button" type="button" data-tablet-sync-recovery-action="repair">重新配对</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = `${event.deviceName} · ${event.deviceKind}`;
+        card.querySelector("p").textContent = `${revokedAt} · 指纹 ${event.publicKeyFingerprint}`;
+        card.querySelector("p:nth-of-type(2)").textContent = "该设备需要重新面对面配对后才能再次同步。";
+        card.querySelector("[data-tablet-device-detail]").textContent = `设备 ID：${event.deviceId} · 撤销确认：${event.confirmation ?? "已确认"} · 恢复：重新面对面扫码并确认 6 位校验码`;
+        node.append(card);
+      }
+    }
+
+    function renderTabletSecurityPanel(security, recordItems = []) {
+      const sensitiveCount = recordItems.reduce((count, record) => {
+        return count + (record.fields ?? []).filter((field) => field.secret || field.sensitivity === "secret" || field.sensitivity === "critical").length;
+      }, 0);
+      const secondUnlockedUntil = security?.secondUnlockedUntil ? new Date(security.secondUnlockedUntil) : null;
+      const secondUnlockActive = secondUnlockedUntil && secondUnlockedUntil.getTime() > Date.now();
+      tabletSecurityLockState.textContent = security?.lockState === "unlocked" ? "已解锁" : security?.lockState === "locked" ? "已锁定" : "等待加载";
+      tabletSecuritySensitiveCount.textContent = `${sensitiveCount} 项`;
+      tabletSecuritySecondUnlock.textContent = secondUnlockActive
+        ? `有效至 ${secondUnlockedUntil.toLocaleTimeString("zh-CN", { hour12: false })}`
+        : "未开启";
+      tabletSecurityCopyClear.textContent = `${security?.copyClearSeconds ?? 30} 秒`;
+      tabletSecurityAutolock.textContent = `${security?.autoLockSeconds ?? 300} 秒`;
+      tabletSecurityCopy.textContent = "平板端只显示本地保险箱安全状态；同步摘要不会包含敏感明文。";
+    }
+
+    function renderSyncPanel(syncPanel) {
+      const confirmation = syncPanel?.pendingConfirmation;
+      document.querySelector("[data-tablet-sync-preview]").textContent = confirmation
+        ? `同步请求：${confirmation.peerDevice.name} · ${new Date(confirmation.requestedAt).toLocaleTimeString("zh-CN", { hour12: false })} · 发送 ${confirmation.preview.sendChanges} 条 · 接收 ${confirmation.preview.receiveChanges} 条 · 冲突 ${confirmation.preview.conflicts} 条 · ${confirmation.transport}`
+        : "同步请求：暂无";
+      const sendTitles = (confirmation?.recordsToSend ?? []).slice(0, 3).map((item) => item.record.title);
+      const receiveTitles = (confirmation?.recordsToReceive ?? []).slice(0, 3).map((item) => item.record.title);
+      const conflictTitles = (confirmation?.conflicts ?? []).slice(0, 3).map((item) => item.title);
+      const chunks = [];
+      if (sendTitles.length) chunks.push(`发送：${sendTitles.join("、")}`);
+      if (receiveTitles.length) chunks.push(`接收：${receiveTitles.join("、")}`);
+      if (conflictTitles.length) chunks.push(`冲突：${conflictTitles.join("、")}`);
+      document.querySelector("[data-tablet-sync-records]").textContent = chunks.length ? `涉及记录：${chunks.join("；")}` : "涉及记录：暂无";
+    }
+
+    function renderTabletNearFieldCandidates(discovery) {
+      if (!tabletNearFieldCandidates) return;
+      currentNearFieldDiscovery = discovery;
+      if (!document.querySelector("[data-tablet-sync-flow]")) {
+        renderTabletSyncFlow("idle");
+      }
+      renderTabletTransportPanel(discovery);
+      const probes = discovery?.probes ?? [];
+      if (tabletDiscoveryProbes) {
+        const ok = probes.filter((probe) => probe.reachable).length;
+        tabletDiscoveryProbes.textContent = probes.length
+          ? `近场探测：成功 ${ok} · 失败 ${probes.length - ok}`
+          : "近场探测：等待扫描";
+      }
+      tabletNearFieldCandidates.replaceChildren();
+      const candidates = discovery?.candidates ?? [];
+      for (const candidate of candidates.length ? candidates : [undefined]) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        if (!candidate) {
+          card.innerHTML = `<strong>暂无近场候选</strong><p>请打开桌面端并保持在同一局域网或面对面热点。</p>`;
+          tabletNearFieldCandidates.append(card);
+          continue;
+        }
+        const summary = candidate.changeSummary
+          ? `变更 ${candidate.changeSummary.changeCount} · 附件 ${candidate.changeSummary.attachmentCount}`
+          : "等待桌面在线摘要";
+        const action = candidate.requiresRepairing ? "需再次配对" : candidate.requiresPairing ? "需面对面配对" : "可同步";
+        const buttonLabel = candidate.requiresRepairing ? "重新配对" : candidate.requiresPairing ? "配对" : "同步确认";
+        const reason = candidate.requiresRepairing
+          ? "原因：桌面密钥与可信列表不一致。下一步：重新面对面确认 6 位码。"
+          : candidate.requiresPairing
+            ? "原因：尚未信任此桌面。下一步：扫码并确认 6 位码。"
+            : "已信任：同步前仍会显示设备名、时间和变更摘要。";
+        card.innerHTML = `
+          <strong></strong>
+          <p></p>
+          <p data-candidate-reason></p>
+          <div class="reminder-actions">
+            <button class="button" type="button" data-candidate-action data-candidate-id="${candidate.id}">${buttonLabel}</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = `${candidate.device.name} · ${action}`;
+        card.querySelector("p").textContent = `${candidate.transport} · ${candidate.endpoint} · ${summary}`;
+        card.querySelector("[data-candidate-reason]").textContent = reason;
+        tabletNearFieldCandidates.append(card);
+      }
+    }
+
+    function renderTabletTransportPanel(discovery) {
+      if (!tabletNearFieldCandidates) return;
+      let panel = document.querySelector("[data-tablet-transport-panel]");
+      if (!panel) {
+        panel = document.createElement("div");
+        panel.className = "reminder-list";
+        panel.dataset.tabletTransportPanel = "true";
+        tabletNearFieldCandidates.before(panel);
+      }
+      const channels = discovery?.transportPlan?.channels ?? discovery?.channels ?? [];
+      const rows = channels.length ? channels : [
+        { id: "local-network", label: "局域网", status: "available" },
+        { id: "bluetooth", label: "蓝牙", status: "planned" },
+        { id: "hotspot", label: "面对面热点", status: "planned" }
+      ];
+      panel.replaceChildren();
+      for (const channel of rows) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = channel.status === "available" ? "upcoming" : "due";
+        const isBluetooth = channel.id === "bluetooth";
+        const statusLabel = channel.status === "available" ? "可用" : channel.status === "planned" ? "已规划" : channel.status;
+        const buttonLabel = channel.id === "local-network" ? "扫描桌面" : isBluetooth ? "离线包状态" : "热点步骤";
+        const note = isBluetooth
+          ? "蓝牙通道只承载本地加密同步包信封；首次连接仍要扫码和 6 位码确认信任。"
+          : channel.id === "local-network"
+            ? "平板和桌面面对面在同一局域网/热点时，先展示变更摘要再交换。"
+            : "无局域网时可改用面对面热点，连接后沿用可信设备校验。";
+        card.innerHTML = `
+          <strong></strong>
+          <p></p>
+          <div class="reminder-actions">
+            <span class="tag">${statusLabel}</span>
+            <button class="button" type="button" data-tablet-transport-action="${channel.id}">${buttonLabel}</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = channel.label ?? channel.id;
+        card.querySelector("p").textContent = note;
+        tabletNearFieldCandidates.before(panel);
+        panel.append(card);
+      }
+    }
+
+    function renderTabletSyncFlow(stage = "idle", details = {}) {
+      if (!tabletNearFieldCandidates) return;
+      let panel = document.querySelector("[data-tablet-sync-flow]");
+      if (!panel) {
+        panel = document.createElement("article");
+        panel.className = "reminder-card";
+        panel.dataset.tabletSyncFlow = "true";
+        tabletNearFieldCandidates.before(panel);
+      }
+      const stages = [
+        ["idle", "准备"],
+        ["scanning", "扫描"],
+        ["pairing", "校验"],
+        ["trusted", "信任"],
+        ["preview", "摘要"],
+        ["exchange", "交换"],
+        ["done", "完成"]
+      ];
+      const indexByStage = Object.fromEntries(stages.map(([id], index) => [id, index]));
+      const activeIndex = indexByStage[stage] ?? 0;
+      panel.dataset.syncFlowStage = stage;
+      panel.innerHTML = `
+        <div class="reminder-card-head">
+          <strong></strong>
+          <span class="tag">${stages[activeIndex]?.[1] ?? "准备"}</span>
+        </div>
+        <p></p>
+        <div class="reminder-actions" data-tablet-sync-flow-steps></div>
+      `;
+      panel.querySelector("strong").textContent = details.title ?? "近场同步流程";
+      panel.querySelector("p").textContent = details.copy ?? "平板只和当面确认过的可信设备交换本地加密同步包。";
+      const steps = panel.querySelector("[data-tablet-sync-flow-steps]");
+      for (const [id, label] of stages) {
+        const item = document.createElement("span");
+        item.className = "tag";
+        item.dataset.syncFlowStep = id;
+        item.textContent = `${indexByStage[id] <= activeIndex ? "✓ " : ""}${label}`;
+        steps.append(item);
+      }
+    }
+
+    function renderRecords(records) {
+      const list = document.querySelector("[data-records]");
+      list.innerHTML = "";
+      for (const record of records.slice(0, 6)) {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = `record${record.id === selectedRecordId ? " active" : ""}`;
+        item.dataset.recordId = record.id;
+        item.innerHTML = `
+          <div class="record-head">
+            <h3></h3>
+            <span class="tag">${typeLabel(record.type)}</span>
+          </div>
+          <p>${record.reminderCount} 个提醒 · ${record.attachmentCount} 个附件 · ${record.favorite ? "已收藏" : "本地保存"}</p>
+        `;
+        item.querySelector("h3").textContent = record.title;
+        item.addEventListener("click", () => {
+          selectedRecordId = record.id;
+          renderRecords(currentState.viewState.recent ?? []);
+          renderDetail();
+          hydrateTabletRecordForm(record);
+          logTabletAction(`已选择 ${record.title}`);
+        });
+        list.appendChild(item);
+      }
+    }
+
+    function renderQueue(records) {
+      const queue = document.querySelector("[data-review-queue]");
+      queue.innerHTML = "";
+      for (const record of records) {
+        const item = document.createElement("div");
+        item.className = "queue-item";
+        item.innerHTML = `<strong></strong><span>${record.attachmentCount} 个附件 · ${record.reminderCount} 个提醒</span>`;
+        item.querySelector("strong").textContent = record.title;
+        queue.appendChild(item);
+      }
+    }
+
+    function renderDetail() {
+      const record = getSelectedDetail();
+      if (!record) {
+        return;
+      }
+      document.querySelector("[data-detail-title]").textContent = record.title;
+      document.querySelector("[data-detail-type]").textContent = typeLabel(record.type);
+      document.querySelector("[data-detail-summary]").textContent =
+        `${record.reminderCount} 个提醒，${record.attachmentCount} 个加密附件。${record.notesPreview}`;
+
+      const fields = document.querySelector("[data-detail-fields]");
+      fields.innerHTML = "";
+      for (const field of record.fields.slice(0, 5)) {
+        const item = document.createElement("div");
+        item.className = "detail-row";
+        item.innerHTML = `<strong><span></span><span>${sensitivityLabel(field.sensitivity)}</span></strong><span>${field.valueState === "encrypted" ? "字段已加密保存" : "尚未填写"}</span>`;
+        item.querySelector("strong span:first-child").textContent = field.label;
+        fields.appendChild(item);
+      }
+      for (const attachment of record.attachments ?? []) {
+        const item = document.createElement("div");
+        item.className = "detail-row";
+        item.innerHTML = `<strong><span></span><span>已加密</span></strong><span data-attachment-meta></span><button class="button amber" type="button" data-attachment-action="remove" data-attachment-id="${escapeHtml(attachment.id)}">移除</button>`;
+        item.querySelector("strong span:first-child").textContent = attachment.id;
+        item.querySelector("[data-attachment-meta]").textContent = `${attachment.mimeType} · ${attachment.source ?? "sync"} · ${attachment.encryptedBlobPath ?? ""} · ${Math.round((attachment.encryptedSize ?? 0) / 1024)} KB`;
+        fields.appendChild(item);
+      }
+      hydrateTabletRecordForm(record);
+    }
+
+    function hydrateTabletRecordForm(record) {
+      if (!record || !tabletRecordForm) {
+        return;
+      }
+      tabletRecordForm.elements.type.value = ["account", "membership", "bank_card", "identity_document"].includes(record.type)
+        ? record.type
+        : "account";
+      tabletRecordForm.elements.title.value = record.title ?? "";
+      tabletRecordForm.elements.account.value = "";
+      tabletRecordForm.elements.notes.value = "";
+    }
+
+    function createTabletRecordPayload(form) {
+      const formData = new FormData(form);
+      return {
+        type: String(formData.get("type") || "account"),
+        title: String(formData.get("title") || "").trim(),
+        account: String(formData.get("account") || "").trim(),
+        reminderAt: String(formData.get("reminderAt") || ""),
+        notes: String(formData.get("notes") || "").trim()
+      };
+    }
+
+    function getSelectedDetail() {
+      if (currentState?.selectedRecord?.id === selectedRecordId) {
+        return currentState.selectedRecord;
+      }
+      const record = currentState?.viewState?.recent?.find((item) => item.id === selectedRecordId);
+      if (!record) {
+        return currentState?.selectedRecord;
+      }
+      return {
+        id: record.id,
+        title: record.title,
+        type: record.type,
+        reminderCount: record.reminderCount,
+        attachmentCount: record.attachmentCount,
+        notesPreview: record.notesPreview ?? "点击保存整理备注后写入本地加密字段",
+        attachments: record.attachments ?? [],
+        fields: [
+          { label: "标题", sensitivity: "public", valueState: "encrypted" },
+          { label: "备注", sensitivity: "private", valueState: "encrypted" }
+        ]
+      };
+    }
+
+    function typeLabel(type) {
+      return {
+        account: "账号",
+        bank_card: "银行卡",
+        membership: "会员",
+        identity_document: "证件",
+        secret_key: "密钥",
+        custom: "自定义"
+      }[type] ?? type;
+    }
+
+    function sensitivityLabel(sensitivity) {
+      return {
+        public: "公开",
+        private: "私密",
+        secret: "敏感",
+        critical: "需二次解锁"
+      }[sensitivity] ?? sensitivity;
+    }
+
+    function renderTabletReminderCenter(reminderCenter) {
+      const filters = reminderCenter?.filters ?? [];
+      const items = reminderCenter?.items ?? [];
+      renderTabletReminderPopup(reminderCenter);
+      tabletReminderTabs.replaceChildren();
+      for (const filter of filters) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `reminder-tab${filter.id === activeReminderFilter ? " active" : ""}`;
+        button.dataset.tabletReminderFilter = filter.id;
+        button.textContent = `${filter.label} ${filter.count}`;
+        button.addEventListener("click", () => {
+          activeReminderFilter = filter.id;
+          renderTabletReminderCenter(currentState?.reminderCenter);
+        });
+        tabletReminderTabs.append(button);
+      }
+
+      const visibleItems = items.filter((item) => activeReminderFilter === "all" || item.source === activeReminderFilter);
+      tabletReminderList.replaceChildren();
+      for (const item of visibleItems.length ? visibleItems : [undefined]) {
+        if (!item) {
+          const empty = document.createElement("div");
+          empty.className = "reminder-card";
+          empty.dataset.source = "history";
+          empty.innerHTML = `<strong>暂无提醒</strong><p>这个分类下还没有需要处理的本地提醒。</p>`;
+          tabletReminderList.append(empty);
+          continue;
+        }
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = item.source;
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="tag">${tabletReminderStatusLabel(item)}</span>
+          </div>
+          <p></p>
+          <p data-reminder-status-detail></p>
+          <div class="reminder-actions" ${item.canAct ? "" : "hidden"}>
+            <button class="button green" type="button" data-reminder-action="complete">完成</button>
+            <button class="button amber" type="button" data-reminder-action="snooze">稍后</button>
+            <button class="button red" type="button" data-reminder-action="dismiss">忽略</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = item.recordTitle;
+        card.querySelector("p").textContent = `${item.popupBody ?? item.body} · 提醒时间：${formatTabletReminderTime(item.triggerAt)}`;
+        card.querySelector("[data-reminder-status-detail]").textContent = formatTabletReminderStatusDetail(item);
+        card.querySelectorAll("[data-reminder-action]").forEach((button) => {
+          button.addEventListener("click", () => handleTabletReminderAction(item, button.dataset.reminderAction));
+        });
+        tabletReminderList.append(card);
+      }
+    }
+
+    function renderTabletReminderPopup(reminderCenter) {
+      const item = reminderCenter?.pending?.[0] ?? reminderCenter?.items?.find((candidate) => candidate.canAct);
+      tabletReminderPopup.querySelector("[data-tablet-reminder-popup-title]").textContent = item?.popupTitle ?? "提醒弹窗";
+      tabletReminderPopup.querySelector("[data-tablet-reminder-popup-status]").textContent = item ? tabletReminderStatusLabel(item) : "暂无";
+      tabletReminderPopup.querySelector("[data-tablet-reminder-popup-body]").textContent = item?.popupBody ?? "暂无到期提醒";
+      tabletReminderPopupActions.hidden = !item;
+      tabletReminderPopupActions.querySelectorAll("[data-tablet-reminder-popup-action]").forEach((button) => {
+        button.onclick = () => item && handleTabletReminderAction(item, button.dataset.tabletReminderPopupAction);
+      });
+    }
+
+    function tabletReminderStatusLabel(item) {
+      if (item.status === "completed") return "已完成";
+      if (item.status === "snoozed") return "已稍后";
+      if (item.status === "dismissed") return "已忽略";
+      if (item.source === "upcoming") return "即将";
+      return "到期";
+    }
+
+    function formatTabletReminderTime(value) {
+      return new Date(value).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+
+    function formatTabletReminderStatusDetail(item) {
+      const lastStatus = item.lastStatusAt ? `处理时间：${formatTabletReminderTime(item.lastStatusAt)}` : "等待处理";
+      const snoozed = item.snoozedUntil ? ` · 稍后提醒：${formatTabletReminderTime(item.snoozedUntil)}` : "";
+      return `${lastStatus}${snoozed} · 状态记录保存在本机`;
+    }
+
+    async function handleTabletReminderAction(item, action) {
+      try {
+        const body = {
+          action,
+          alertId: item.alertId
+        };
+        if (action === "snooze") {
+          body.snoozedUntil = "2026-06-25T10:00:00.000Z";
+        }
+        const result = await requestJson("/api/reminders/action", body);
+        renderState(result.appState);
+        logTabletAction(`提醒已${action === "complete" ? "完成" : action === "snooze" ? "稍后提醒" : "忽略"}`);
+      } catch (error) {
+        logTabletAction("提醒处理失败", "error");
+      }
+    }
+
+    async function requestJson(url, body, method = "POST") {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function openTabletSyncReviewPanel(confirmation) {
+      return new Promise((resolve) => {
+        const preview = confirmation.preview ?? {};
+        const review = confirmation.review ?? {};
+        tabletSyncReviewPeer.textContent = review.peerDeviceName ?? confirmation.peerDevice?.name ?? "未知设备";
+        tabletSyncReviewTime.textContent = new Date(review.requestedAt ?? confirmation.requestedAt).toLocaleString("zh-CN", { hour12: false });
+        tabletSyncReviewExpires.textContent = review.expiresAt ?? confirmation.expiresAt ? new Date(review.expiresAt ?? confirmation.expiresAt).toLocaleString("zh-CN", { hour12: false }) : "5 分钟内";
+        tabletSyncReviewTransport.textContent = review.transport ?? confirmation.transport ?? "local-network";
+        tabletSyncReviewPeerUrl.textContent = review.peerBaseUrl ?? confirmation.peerBaseUrl ?? "本机近场连接";
+        tabletSyncReviewFingerprint.textContent = review.peerKeyFingerprint ?? "待确认";
+        tabletSyncReviewPublicNetwork.textContent = review.publicNetworkLogin === false ? "否" : "需要检查";
+        tabletSyncReviewSummary.textContent = review.summaryText ?? `发送 ${preview.sendChanges ?? 0} · 接收 ${preview.receiveChanges ?? 0} · 冲突 ${preview.conflicts ?? 0}`;
+        tabletSyncReviewTrust.textContent = formatSyncReviewTrust(review);
+        tabletSyncReviewRecords.replaceChildren();
+        const rows = review.recordLines ?? [
+          ...(confirmation.recordsToSend ?? []).slice(0, 6).map((item) => `发送：${item.record.title}`),
+          ...(confirmation.recordsToReceive ?? []).slice(0, 6).map((item) => `接收：${item.record.title}`),
+          ...(confirmation.conflicts ?? []).slice(0, 6).map((item) => `冲突：${item.title}`)
+        ];
+        for (const text of rows.length ? rows : ["本次没有记录级变更"]) {
+          const item = document.createElement("li");
+          item.textContent = text;
+          tabletSyncReviewRecords.appendChild(item);
+        }
+        tabletSyncReviewPanel.hidden = false;
+
+        const cleanup = () => {
+          tabletSyncReviewPanel.hidden = true;
+          tabletSyncReviewConfirm.removeEventListener("click", onConfirm);
+          tabletSyncReviewCancel.removeEventListener("click", onCancel);
+          tabletSyncReviewPeerReject.removeEventListener("click", onReject);
+          tabletSyncReviewTimeout.removeEventListener("click", onTimeout);
+        };
+        const applyConfirmationAction = async (action, decisions = []) => {
+          try {
+            const result = await requestJson("/api/sync/confirmation-action", {
+              confirmationId: confirmation.id,
+              action,
+              decisions
+            });
+            renderState(result.appState);
+            logTabletAction(action === "confirm" ? "已确认对方同步请求" : action === "timeout" ? "等待桌面确认超时" : "对方已拒绝本次同步", "sync");
+          } catch {
+            logTabletAction("同步确认状态写入失败", "error");
+          }
+        };
+        const onConfirm = async () => {
+          const expiresAt = Date.parse(confirmation.review?.expiresAt ?? confirmation.expiresAt ?? "");
+          if (Number.isFinite(expiresAt) && expiresAt <= Date.now()) {
+            logTabletAction("同步摘要已过期，请重新生成后再确认", "error");
+            return;
+          }
+          if (confirmation.requestRole === "receiver") {
+            const decisions = await collectTabletConflictDecisions(confirmation);
+            if (decisions === null) {
+              logTabletAction("已取消冲突处理，同步请求未确认", "sync");
+              return;
+            }
+            await applyConfirmationAction("confirm", decisions);
+            cleanup();
+            resolve(false);
+            return;
+          }
+          cleanup();
+          resolve(true);
+        };
+        const onCancel = () => {
+          cleanup();
+          resolve(false);
+        };
+        const onReject = async () => {
+          await applyConfirmationAction("reject");
+          cleanup();
+          resolve(false);
+        };
+        const onTimeout = async () => {
+          await applyConfirmationAction("timeout");
+          cleanup();
+          resolve(false);
+        };
+        tabletSyncReviewConfirm.addEventListener("click", onConfirm);
+        tabletSyncReviewCancel.addEventListener("click", onCancel);
+        tabletSyncReviewPeerReject.addEventListener("click", onReject);
+        tabletSyncReviewTimeout.addEventListener("click", onTimeout);
+      });
+    }
+
+    function formatSyncReviewTrust(review = {}) {
+      if (review.requiresRepairing) return "需要重新面对面配对";
+      if (review.pairingAction && review.pairingAction !== "not-required") return "需要面对面配对";
+      return "已信任，仍需确认本次摘要";
+    }
+
+    function findTabletPendingSyncConfirmation(confirmationId) {
+      const pending = currentState?.syncPanel?.syncCenter?.pendingConfirmations ?? [];
+      if (confirmationId) {
+        return pending.find((item) => item.id === confirmationId);
+      }
+      return currentState?.syncPanel?.pendingConfirmation ?? pending.at(-1);
+    }
+
+    function collectTabletConflictDecisions(confirmation) {
+      const conflicts = confirmation?.conflicts ?? [];
+      if (conflicts.length === 0) {
+        return [];
+      }
+      return openTabletConflictPanel(conflicts);
+    }
+
+    function openTabletConflictPanel(conflicts) {
+      tabletConflictList.replaceChildren();
+      const decisionSummary = document.querySelector("[data-tablet-conflict-decision-summary]");
+      const optionLabels = {
+        "use-local": "保留本机",
+        "use-remote": "使用桌面",
+        "keep-both": "保留两份",
+        "manual-merge": "手动合并",
+        "ignore-remote": "忽略传入"
+      };
+      conflicts.forEach((conflict, index) => {
+        const fields = (conflict.fields ?? []).map(describeTabletConflictField).join("、") || "记录元数据";
+        const card = document.createElement("section");
+        card.className = "conflict-card";
+        card.dataset.conflictId = conflict.id;
+
+        const title = document.createElement("strong");
+        title.textContent = conflict.title;
+        const decisionState = document.createElement("p");
+        decisionState.setAttribute("data-conflict-decision-state", "");
+        decisionState.textContent = "当前选择：保留本机";
+        const meta = document.createElement("p");
+        meta.textContent = `冲突字段：${fields}`;
+        const diff = createTabletConflictDiffView(conflict, {
+          localLabel: "平板本机版本",
+          remoteLabel: "桌面传入版本"
+        });
+        const options = document.createElement("div");
+        options.className = "conflict-options";
+
+        Object.entries(optionLabels).forEach(([value, labelText], optionIndex) => {
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `tablet-conflict-${index}`;
+          input.value = value;
+          input.setAttribute("data-conflict-resolution", value);
+          input.checked = optionIndex === 0;
+          label.append(input, document.createTextNode(labelText));
+          options.append(label);
+        });
+        const optionHelp = document.createElement("p");
+        optionHelp.className = "conflict-option-help";
+        optionHelp.setAttribute("data-conflict-option-help", "");
+        optionHelp.textContent = tabletConflictResolutionHelp("use-local");
+        options.addEventListener("change", () => {
+          optionHelp.textContent = tabletConflictResolutionHelp(card.querySelector("input[type='radio']:checked")?.value ?? "use-local");
+          updateTabletConflictDecisionSummary(tabletConflictList, decisionSummary);
+        });
+
+        const fieldMergeList = document.createElement("div");
+        fieldMergeList.className = "field-merge-list";
+        fieldMergeList.setAttribute("data-manual-merge-fields", "");
+        for (const field of conflict.fields ?? []) {
+          const row = document.createElement("div");
+          row.className = "field-merge-row";
+          row.dataset.fieldKey = field.key;
+          row.dataset.fieldSensitivity = field.sensitivity;
+          const name = `tablet-conflict-${index}-field-${field.key}`;
+          const label = document.createElement("span");
+          label.textContent = describeTabletConflictField(field);
+          row.append(
+            label,
+            createTabletFieldMergeOption(name, "local", "本机", true),
+            createTabletFieldMergeOption(name, "remote", "桌面", false)
+          );
+          fieldMergeList.append(row);
+        }
+        fieldMergeList.addEventListener("change", () => updateTabletConflictDecisionSummary(tabletConflictList, decisionSummary));
+
+        card.append(title, decisionState, meta, diff, options, optionHelp, fieldMergeList);
+        tabletConflictList.append(card);
+      });
+      updateTabletConflictDecisionSummary(tabletConflictList, decisionSummary);
+
+      tabletConflictPanel.hidden = false;
+      return new Promise((resolve) => {
+        const cleanup = () => {
+          tabletConflictPanel.hidden = true;
+          tabletConflictConfirm.onclick = null;
+          tabletConflictCancel.onclick = null;
+        };
+        tabletConflictConfirm.onclick = () => {
+          const decisions = [...tabletConflictList.querySelectorAll("[data-conflict-id]")].map((card) => ({
+            conflictId: card.dataset.conflictId,
+            resolution: card.querySelector("input[type='radio']:checked")?.value ?? "use-local",
+            manualMerge: collectTabletManualMergeFields(card)
+          }));
+          cleanup();
+          resolve(decisions);
+        };
+        tabletConflictCancel.onclick = () => {
+          cleanup();
+          resolve(null);
+        };
+      });
+    }
+
+    function createTabletFieldMergeOption(name, value, labelText, checked) {
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = name;
+      input.value = value;
+      input.checked = checked;
+      label.append(input, document.createTextNode(labelText));
+      return label;
+    }
+
+    function collectTabletManualMergeFields(card) {
+      const resolution = card.querySelector("input[type='radio']:checked")?.value;
+      if (resolution !== "manual-merge") {
+        return undefined;
+      }
+      return {
+        fields: [...card.querySelectorAll("[data-field-key]")].map((row) => ({
+          fieldKey: row.dataset.fieldKey,
+          sensitivity: row.dataset.fieldSensitivity,
+          source: row.querySelector("input[type='radio']:checked")?.value ?? "local"
+        }))
+      };
+    }
+
+    function updateTabletConflictDecisionSummary(list, summaryNode) {
+      const cards = [...list.querySelectorAll("[data-conflict-id]")];
+      const counts = {};
+      let manualFields = 0;
+      const labels = {
+        "use-local": "保留本机",
+        "use-remote": "使用桌面",
+        "keep-both": "保留两份",
+        "manual-merge": "手动合并",
+        "ignore-remote": "忽略传入"
+      };
+      for (const card of cards) {
+        const resolution = card.querySelector("input[type='radio']:checked")?.value ?? "use-local";
+        counts[resolution] = (counts[resolution] ?? 0) + 1;
+        const fieldCount = resolution === "manual-merge" ? card.querySelectorAll("[data-field-key]").length : 0;
+        manualFields += fieldCount;
+        const state = card.querySelector("[data-conflict-decision-state]");
+        if (state) {
+          state.textContent = fieldCount
+            ? `当前选择：${labels[resolution]} · ${fieldCount} 个字段`
+            : `当前选择：${labels[resolution]}`;
+        }
+      }
+      if (summaryNode) {
+        const parts = Object.entries(counts).map(([key, count]) => `${labels[key] ?? key} ${count}`);
+        summaryNode.textContent = `冲突 ${cards.length} 条 · ${parts.join(" · ")}${manualFields ? ` · 手动字段 ${manualFields}` : ""}`;
+      }
+    }
+
+    function createTabletConflictDiffView(conflict, labels) {
+      const diff = document.createElement("div");
+      diff.className = "conflict-diff";
+      diff.setAttribute("data-conflict-diff", "");
+      const fields = conflict.fields ?? [];
+      diff.append(
+        createTabletConflictVersionCard(labels.localLabel, "保留平板当前记录", filterTabletConflictFieldsForSide(fields, "local")),
+        createTabletConflictVersionCard(labels.remoteLabel, "应用桌面传入变更", filterTabletConflictFieldsForSide(fields, "remote"))
+      );
+      return diff;
+    }
+
+    function createTabletConflictVersionCard(label, summary, fields) {
+      const card = document.createElement("div");
+      card.className = "conflict-version";
+      card.setAttribute("data-conflict-version", label);
+      const sensitiveCount = fields.filter((field) => field.sensitivity === "secret" || field.sensitivity === "critical").length;
+      const fieldNames = fields.map(describeTabletConflictField).join("、") || "这一侧没有对应字段";
+      card.innerHTML = `
+        <strong></strong>
+        <span></span>
+        <span></span>
+      `;
+      card.querySelector("strong").textContent = label;
+      card.querySelector("span:nth-child(2)").textContent = summary;
+      card.querySelector("span:nth-child(3)").textContent = `${fieldNames}${sensitiveCount ? ` · ${sensitiveCount} 个敏感字段已隐藏明文` : ""}`;
+      return card;
+    }
+
+    function filterTabletConflictFieldsForSide(fields, side) {
+      return fields.filter((field) => {
+        if (side === "local") {
+          return field.side !== "remote-only";
+        }
+        return field.side !== "local-only";
+      });
+    }
+
+    function describeTabletConflictField(field) {
+      const sideLabel = {
+        "both": "双方不同",
+        "local-only": "仅本机",
+        "remote-only": "仅桌面"
+      }[field.side ?? "both"];
+      const localTime = field.localUpdatedAt ? `本机 ${formatTabletConflictTime(field.localUpdatedAt)}` : "本机无";
+      const remoteTime = field.remoteUpdatedAt ? `桌面 ${formatTabletConflictTime(field.remoteUpdatedAt)}` : "桌面无";
+      return `${field.key} · ${field.sensitivity} · ${sideLabel} · ${localTime} / ${remoteTime}`;
+    }
+
+    function formatTabletConflictTime(value) {
+      return new Date(value).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+
+    function tabletConflictResolutionHelp(resolution) {
+      return {
+        "use-local": "保留本机：桌面这次传入的冲突记录会被忽略。",
+        "use-remote": "使用桌面：平板记录会按桌面版本更新。",
+        "keep-both": "保留两份：平板和桌面版本都保留，稍后再整理。",
+        "manual-merge": "手动合并：逐字段选择平板或桌面来源。",
+        "ignore-remote": "忽略传入：本次不处理桌面冲突变更。"
+      }[resolution] ?? "请选择处理方式。";
+    }
+
+    async function trustDesktopFromTablet(button) {
+      try {
+        renderTabletSyncFlow("pairing", {
+          title: "确认桌面身份",
+          copy: "正在读取桌面二维码，并核对 6 位校验码。"
+        });
+        const pairing = await readTabletPairingOrPreview();
+        const result = await requestJson("/api/pairing/trust", {
+          payloadText: pairing.qrPayloadText,
+          confirmedCode: pairing.sixDigitCode
+        });
+        renderState(result.appState);
+        renderTabletSyncFlow("trusted", {
+          title: "已信任桌面",
+          copy: `${result.trustedDevice.name} 已进入可信设备列表；之后同步仍需确认变更摘要。`
+        });
+        if (button) {
+          button.textContent = `已信任 ${result.trustedDevice.name}`;
+        }
+        logTabletAction(`QR 配对 ${result.trustedDevice.name} · ${result.pairing.verificationCode}`, "sync");
+        return result;
+      } catch (error) {
+        renderTabletSyncFlow("idle", {
+          title: "信任失败",
+          copy: "请重新面对面扫码，并确认 6 位校验码一致。"
+        });
+        if (button) {
+          button.textContent = "信任失败";
+          button.style.background = "var(--red)";
+        }
+        logTabletAction("信任桌面失败", "error");
+        throw error;
+      }
+    }
+
+    async function readTabletPairingOrPreview() {
+      const payloadNode = document.querySelector("[data-tablet-pairing-payload]");
+      const codeNode = document.querySelector("[data-tablet-pairing-code]");
+      const payloadText = payloadNode?.value.trim();
+      const confirmedCode = codeNode?.value.trim();
+      if (payloadText && confirmedCode) {
+        return {
+          qrPayloadText: payloadText,
+          sixDigitCode: confirmedCode
+        };
+      }
+      const pairingResponse = await fetch("http://127.0.0.1:4173/api/pairing/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ttlSeconds: 300 })
+      });
+      if (!pairingResponse.ok) {
+        throw new Error(`Desktop pairing request failed: ${pairingResponse.status}`);
+      }
+      const pairing = await pairingResponse.json();
+      if (payloadNode && !payloadNode.value.trim()) {
+        payloadNode.value = pairing.qrPayloadText;
+      }
+      if (codeNode && !codeNode.value.trim()) {
+        codeNode.value = pairing.sixDigitCode;
+      }
+      const statusNode = document.querySelector("[data-tablet-pairing-input-status]");
+      if (statusNode) {
+        statusNode.textContent = "已读取桌面 QR payload，请核对 6 位校验码后信任。";
+      }
+      return pairing;
+    }
+
+    async function scanTabletPairingImage(file) {
+      const statusNode = document.querySelector("[data-tablet-pairing-input-status]");
+      if (!file) return;
+      if (!("BarcodeDetector" in window)) {
+        if (statusNode) statusNode.textContent = "当前浏览器不支持图片扫码，请粘贴 QR payload。";
+        return;
+      }
+      try {
+        const bitmap = await createImageBitmap(file);
+        const detector = new BarcodeDetector({ formats: ["qr_code"] });
+        const codes = await detector.detect(bitmap);
+        const payloadText = codes[0]?.rawValue?.trim();
+        if (!payloadText) {
+          if (statusNode) statusNode.textContent = "未识别到二维码，请换一张更清晰的图片。";
+          return;
+        }
+        const payloadNode = document.querySelector("[data-tablet-pairing-payload]");
+        if (payloadNode) payloadNode.value = payloadText;
+        if (statusNode) statusNode.textContent = "已识别 QR payload，请输入桌面显示的 6 位校验码。";
+      } catch {
+        if (statusNode) statusNode.textContent = "二维码图片识别失败，请改用粘贴 QR payload。";
+      }
+    }
+
+    document.querySelector("[data-tablet-pairing-image]")?.addEventListener("change", async (event) => {
+      await scanTabletPairingImage(event.target.files?.[0]);
+      event.target.value = "";
+    });
+
+    document.querySelector("[data-action='tablet-backup-export']").addEventListener("click", async () => {
+      try {
+        const result = await requestJson("/api/backup/export", {});
+        renderState(result.appState);
+        document.querySelector("[data-tablet-backup-status]").textContent =
+          `Backup: exported ${result.summary.records} records / ${result.summary.bytes} bytes`;
+        logTabletAction(`Backup exported: ${result.savedPath}`);
+      } catch (error) {
+        logTabletAction("Backup export failed", "error");
+      }
+    });
+
+    document.querySelector("[data-action='tablet-backup-verify']").addEventListener("click", async () => {
+      try {
+        const result = await requestJson("/api/backup/verify", {});
+        document.querySelector("[data-tablet-backup-status]").textContent =
+          `Backup: verified ${result.summary.records} records / ${result.summary.attachments} attachments`;
+        logTabletAction("Backup verified");
+      } catch (error) {
+        logTabletAction("Backup verify failed; export first", "error");
+      }
+    });
+
+    document.querySelector("[data-action='trust-desktop']").addEventListener("click", async (event) => {
+      try {
+        await trustDesktopFromTablet(event.currentTarget);
+      } catch {
+        // 状态已在 trustDesktopFromTablet 中记录。
+      }
+    });
+
+    document.querySelector("[data-action='discovery-scan']").addEventListener("click", async () => {
+      try {
+        renderTabletSyncFlow("scanning", {
+          title: "扫描桌面端",
+          copy: "正在查找同一局域网或面对面热点中的桌面端。"
+        });
+        const result = await requestJson("/api/discovery/scan", {
+          hosts: ["127.0.0.1"],
+          ports: [4173]
+        });
+        renderTabletNearFieldCandidates(result.discovery);
+        renderTabletSyncFlow(result.discovery.candidates.length ? "scanning" : "idle", {
+          title: result.discovery.candidates.length ? "已发现桌面候选" : "未发现桌面",
+          copy: result.discovery.candidates.length
+            ? "请选择候选设备继续配对，或进入同步摘要确认。"
+            : "请确认桌面端正在运行，并处于同一局域网或热点。"
+        });
+        logTabletAction(`发现 ${result.discovery.candidates.length} 个近场候选`, "sync");
+      } catch (error) {
+        logTabletAction("近场扫描失败", "error");
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-tablet-transport-action]");
+      if (!button) return;
+      const action = button.dataset.tabletTransportAction;
+      if (action === "local-network") {
+        document.querySelector("[data-action='discovery-scan']")?.click();
+        return;
+      }
+      if (action === "bluetooth") {
+        logTabletAction("蓝牙离线包信封已就绪：只和可信设备交换加密同步包", "sync");
+        return;
+      }
+      logTabletAction("面对面热点流程已准备作为无网络备选通道", "sync");
+    });
+
+    document.querySelectorAll("[data-tablet-connection-state], [data-tablet-sync-center], [data-tablet-sync-audit-log], [data-tablet-trusted-devices]").forEach((node) => node.addEventListener("click", async (event) => {
+      const detailButton = event.target.closest("[data-tablet-device-detail-action]");
+      if (detailButton?.dataset.tabletDeviceDetailAction === "toggle") {
+        const card = detailButton.closest(".reminder-card");
+        const detail = card?.querySelector("[data-tablet-device-detail]");
+        if (detail) {
+          detail.hidden = !detail.hidden;
+          detailButton.textContent = detail.hidden ? "查看详情" : "收起详情";
+        }
+        return;
+      }
+      const trustedButton = event.target.closest("[data-tablet-trusted-device-action]");
+      if (trustedButton?.dataset.tabletTrustedDeviceAction === "revoke") {
+        if (!confirm(`撤销「${trustedButton.dataset.deviceName}」的信任？撤销后该设备必须重新面对面配对才能同步。`)) {
+          return;
+        }
+        try {
+          const result = await requestJson("/api/trusted-devices", {
+            deviceId: trustedButton.dataset.deviceId,
+            confirmDeviceName: trustedButton.dataset.deviceName
+          }, "DELETE");
+          renderState(result.appState);
+          logTabletAction("已撤销可信设备", "sync");
+        } catch (error) {
+          logTabletAction("撤销可信设备失败", "error");
+        }
+        return;
+      }
+      const button = event.target.closest("[data-tablet-sync-recovery-action]");
+      const centerButton = event.target.closest("[data-tablet-sync-center-action]");
+      if (centerButton?.dataset.tabletSyncCenterAction === "review-sync") {
+        const confirmation = findTabletPendingSyncConfirmation(centerButton.dataset.syncConfirmationId);
+        if (confirmation) {
+          renderTabletSyncFlow("preview", {
+            title: confirmation.requestRole === "receiver" ? "收到同步请求" : "待确认同步摘要",
+            copy: `对方设备：${confirmation.peerDevice?.name ?? "未知设备"}`
+          });
+          await openTabletSyncReviewPanel(confirmation);
+          logTabletAction(confirmation.requestRole === "receiver" ? "已处理收到的同步请求" : "已查看待确认同步摘要", "sync");
+          return;
+        }
+        document.querySelector("[data-action='sync-push']")?.click();
+        logTabletAction("正在生成同步摘要", "sync");
+        return;
+      }
+      const action = button?.dataset.tabletSyncRecoveryAction === "repair" ? "repair-pairing" : button?.dataset.tabletSyncRecoveryAction ?? centerButton?.dataset.tabletSyncCenterAction;
+      if (!action) return;
+      const retryRequestText = button?.dataset.tabletSyncRetryRequest ?? centerButton?.dataset.tabletSyncRetryRequest;
+      if (action === "retry-sync") {
+        const retryRequest = retryRequestText ? JSON.parse(retryRequestText) : undefined;
+        renderTabletSyncFlow("preview", {
+          title: `重试同步：${retryRequest?.desktopDeviceName ?? "桌面端"}`,
+          copy: "将重新生成同步摘要，确认后才会发送加密同步包。"
+        });
+        await runTabletCandidateSync(retryRequest);
+        return;
+      }
+      if (action === "rescan") {
+        document.querySelector("[data-action='discovery-scan']")?.click();
+        logTabletAction("正在重新扫描桌面端", "sync");
+        return;
+      }
+      renderTabletSyncFlow("pairing", {
+        title: "重新配对桌面",
+        copy: "请面对面扫描桌面二维码，并重新确认 6 位校验码。"
+      });
+      await trustDesktopFromTablet(button);
+    }));
+
+    tabletNearFieldCandidates?.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-candidate-action]");
+      if (!button) return;
+      const candidate = currentNearFieldDiscovery?.candidates?.find((item) => item.id === button.dataset.candidateId);
+      if (!candidate) {
+        logTabletAction("请先重新扫描该设备", "error");
+        return;
+      }
+      try {
+        const result = await requestJson("/api/discovery/resolve", { candidate });
+        if (result.action === "pair" || result.action === "repair-pairing") {
+          renderTabletSyncFlow("pairing", {
+            title: result.action === "repair-pairing" ? "Repair pairing required" : "Face-to-face pairing required",
+            copy: "Scan the QR code and confirm the six-digit code before trusting this desktop."
+          });
+          logTabletAction(result.message ?? "请面对面完成配对确认", "sync");
+          await trustDesktopFromTablet(button);
+          return;
+        }
+        if (result.action === "sync-preview") {
+          await runTabletCandidateSync(result.nextRequest);
+          return;
+        }
+        logTabletAction(result.message ?? "请重新扫描近场设备", "error");
+      } catch (error) {
+        logTabletAction("处理近场设备失败", "error");
+      }
+    });
+
+    async function runTabletCandidateSync(nextRequest) {
+      renderTabletSyncFlow("preview", {
+        title: "Preparing sync preview",
+        copy: "The encrypted package will not be exchanged until you confirm the summary."
+      });
+      const preview = await requestJson("/api/sync/preview", nextRequest ?? {});
+      renderState(preview.appState);
+      if (!await openTabletSyncReviewPanel(preview.confirmation)) {
+        renderTabletSyncFlow("idle", {
+          title: "Sync cancelled",
+          copy: "No encrypted package was exchanged and no remote data was changed."
+        });
+        logTabletAction("已取消同步到桌面", "sync");
+        return;
+      }
+      const decisions = await collectTabletConflictDecisions(preview.confirmation);
+      if (decisions === null) {
+        renderTabletSyncFlow("idle", {
+          title: "Conflict handling cancelled",
+          copy: "Conflicts were not confirmed, so sync did not continue."
+        });
+        logTabletAction("已取消冲突处理", "sync");
+        return;
+      }
+      renderTabletSyncFlow("exchange", {
+        title: "Exchanging encrypted package",
+        copy: "Only trusted devices receive encrypted sync packages."
+      });
+      const result = await requestJson("/api/sync/push", {
+        ...(nextRequest ?? {}),
+        confirmationId: preview.confirmation.id,
+        decisions
+      });
+      renderState(result.appState);
+      renderTabletSyncFlow("done", {
+        title: "Sync complete",
+        copy: result.appState?.syncPanel?.lastReceiptSummary?.label ?? `Synced ${result.sentChanges} changes.`
+      });
+      logTabletAction(result.appState?.syncPanel?.lastReceiptSummary?.label ?? `已同步到桌面：${result.sentChanges} 条变更`, "sync");
+    }
+
+    tabletRecordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = createTabletRecordPayload(tabletRecordForm);
+      if (!payload.title) {
+        logTabletAction("请先填写记录标题", "error");
+        return;
+      }
+      try {
+        const result = await requestJson("/api/records", payload);
+        selectedRecordId = result.record.id;
+        tabletRecordForm.reset();
+        renderState(result.appState);
+        logTabletAction(`已新增 ${result.record.title}`);
+      } catch (error) {
+        logTabletAction("新增记录失败", "error");
+      }
+    });
+
+    document.querySelector("[data-action='tablet-update-record']").addEventListener("click", async () => {
+      if (!selectedRecordId) {
+        logTabletAction("请先选择记录", "error");
+        return;
+      }
+      const payload = createTabletRecordPayload(tabletRecordForm);
+      try {
+        const result = await requestJson("/api/records", {
+          recordId: selectedRecordId,
+          title: payload.title,
+          notes: payload.notes
+        }, "PATCH");
+        selectedRecordId = result.record.id;
+        renderState(result.appState);
+        logTabletAction(`已更新 ${result.record.title}`);
+      } catch (error) {
+        logTabletAction("更新记录失败", "error");
+      }
+    });
+
+    document.querySelector("[data-action='tablet-delete-record']").addEventListener("click", async () => {
+      if (!selectedRecordId) {
+        logTabletAction("请先选择记录", "error");
+        return;
+      }
+      const record = currentState?.viewState?.recent?.find((item) => item.id === selectedRecordId);
+      if (record && !confirm(`删除「${record.title}」？此操作只影响本机平板保险库。`)) {
+        return;
+      }
+      try {
+        const result = await requestJson("/api/records", { recordId: selectedRecordId }, "DELETE");
+        selectedRecordId = undefined;
+        tabletRecordForm.reset();
+        renderState(result.appState);
+        logTabletAction("已删除本机记录");
+      } catch (error) {
+        logTabletAction("删除记录失败", "error");
+      }
+    });
+
+    document.querySelector("[data-detail-fields]").addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-attachment-action='remove']");
+      if (!button) return;
+      if (!selectedRecordId) {
+        logTabletAction("请先选择记录", "error");
+        return;
+      }
+      try {
+        const result = await requestJson("/api/attachments", {
+          recordId: selectedRecordId,
+          attachmentId: button.dataset.attachmentId
+        }, "DELETE");
+        selectedRecordId = result.record.id;
+        renderState(result.appState);
+        logTabletAction("已移除附件引用，原加密文件仍保留");
+      } catch (error) {
+        logTabletAction("附件移除失败", "error");
+      }
+    });
+
+    document.querySelector("[data-action='review-confirm']").addEventListener("click", async (event) => {
+      try {
+        const result = await requestJson("/api/review/confirm", {});
+        renderState(result.appState);
+        event.currentTarget.textContent = `已确认 ${result.reviewedRecord.title}`;
+        logTabletAction(`已整理入库：${result.reviewedRecord.title}`);
+      } catch (error) {
+        event.currentTarget.textContent = "确认失败";
+        event.currentTarget.style.background = "var(--red)";
+        logTabletAction("确认整理失败", "error");
+      }
+    });
+
+    document.querySelector("[data-action='sync-push']").addEventListener("click", async (event) => {
+      try {
+        const preview = await requestJson("/api/sync/preview", {});
+        renderState(preview.appState);
+        if (!await openTabletSyncReviewPanel(preview.confirmation)) {
+          logTabletAction("已取消同步到桌面", "sync");
+          return;
+        }
+        const decisions = await collectTabletConflictDecisions(preview.confirmation);
+        if (decisions === null) {
+          logTabletAction("已取消冲突处理", "sync");
+          return;
+        }
+        const result = await requestJson("/api/sync/push", {
+          confirmationId: preview.confirmation.id,
+          decisions
+        });
+        renderState(result.appState);
+        event.currentTarget.textContent = `已同步 ${result.sentChanges} 条`;
+        logTabletAction(result.appState?.syncPanel?.lastReceiptSummary?.label ?? `已同步到桌面：${result.sentChanges} 条变更`, "sync");
+      } catch (error) {
+        event.currentTarget.textContent = "同步失败";
+        event.currentTarget.style.background = "var(--red)";
+        logTabletAction("同步到桌面失败，请先面对面信任桌面", "error");
+      }
+    });
+
+    document.querySelector("[data-notes-form]").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const notes = new FormData(form).get("notes");
+      try {
+        const result = await requestJson("/api/review/notes", {
+          recordId: selectedRecordId,
+          notes
+        }, "PATCH");
+        form.reset();
+        renderState(result.appState);
+        selectedRecordId = result.updatedRecord.id;
+        renderDetail();
+        logTabletAction(`已保存 ${result.updatedRecord.title} 的整理备注`);
+      } catch (error) {
+        logTabletAction("整理备注保存失败", "error");
+      }
+    });
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    loadState().catch(() => {
+      logTabletAction("平板状态加载失败", "error");
+    });
+  </script>
+</body>
+</html>

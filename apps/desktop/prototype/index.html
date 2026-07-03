@@ -1,0 +1,3262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LoginTo UI Prototype</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --soft: #f5f7fa;
+      --paper: #ffffff;
+      --line: #d0d5dd;
+      --line-soft: #e4e7ec;
+      --action: #2563eb;
+      --teal: #0f766e;
+      --amber: #a16207;
+      --red: #b42318;
+      --green: #15803d;
+      --violet: #6d28d9;
+      --shadow: 0 12px 28px rgba(23, 32, 51, 0.12);
+      --radius: 8px;
+      --control: 6px;
+      font-family: Inter, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: #eef2f6;
+      letter-spacing: 0;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      color: inherit;
+      background: transparent;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 248px minmax(320px, 410px) minmax(480px, 1fr) 310px;
+      min-height: 100vh;
+      background: var(--paper);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px 14px;
+      border-right: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      height: 42px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--control);
+      background: #172033;
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .brand-name {
+      flex: 1;
+      min-width: 0;
+      font-size: 18px;
+      font-weight: 760;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: var(--paper);
+    }
+
+    .icon-btn:hover,
+    .record-row:hover,
+    .sync-action:hover,
+    .seg button:hover {
+      border-color: #98a2b3;
+      background: #f2f4f7;
+    }
+
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: var(--paper);
+    }
+
+    .search input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .nav-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav button {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 8px;
+      border-radius: var(--control);
+      color: #344054;
+      text-align: left;
+    }
+
+    .nav button.active {
+      color: #ffffff;
+      background: #172033;
+    }
+
+    .count {
+      min-width: 24px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 12px;
+      background: #e4e7ec;
+      color: #344054;
+    }
+
+    .nav button.active .count {
+      background: rgba(255,255,255,0.18);
+      color: #ffffff;
+    }
+
+    .secure-note {
+      margin-top: auto;
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius);
+      background: #f0fdf4;
+      color: #14532d;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .main-list {
+      border-right: 1px solid var(--line);
+      background: #ffffff;
+      min-width: 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 72px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head h1,
+    .detail-title h2,
+    .rail h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .seg {
+      display: inline-grid;
+      grid-auto-flow: column;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      overflow: hidden;
+      background: var(--paper);
+    }
+
+    .seg button {
+      min-width: 42px;
+      height: 32px;
+      padding: 0 10px;
+      border-right: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .seg button:last-child { border-right: 0; }
+    .seg button.active {
+      color: #ffffff;
+      background: var(--action);
+    }
+
+    .record-list {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .record-row {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 72px;
+      padding: 10px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+    }
+
+    .record-row.active {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+
+    .type-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: var(--control);
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .type-account { background: var(--action); }
+    .type-card { background: var(--teal); }
+    .type-member { background: var(--amber); }
+    .type-id { background: var(--violet); }
+
+    .row-main {
+      min-width: 0;
+    }
+
+    .row-title {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 760;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-sub {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 650;
+      background: #f2f4f7;
+      color: #344054;
+    }
+
+    .badge.warn { background: #fef3c7; color: #854d0e; }
+    .badge.sync { background: #ccfbf1; color: #115e59; }
+    .badge.danger { background: #fee2e2; color: #991b1b; }
+    .badge.secret { background: #ede9fe; color: #5b21b6; }
+
+    .detail {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: #ffffff;
+    }
+
+    .detail-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      min-height: 72px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: var(--control);
+      color: #ffffff;
+      background: var(--action);
+      font-weight: 720;
+    }
+
+    .secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: var(--paper);
+      font-weight: 650;
+    }
+
+    .detail-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px;
+      gap: 18px;
+      padding: 18px 20px;
+      overflow: auto;
+    }
+
+    .fields {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) auto;
+      align-items: center;
+      min-height: 48px;
+      padding: 8px 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      background: #fcfcfd;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .field-value {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 680;
+    }
+
+    .field-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mini-btn {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: var(--paper);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .side-info {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      overflow: hidden;
+    }
+
+    .panel h3 {
+      margin: 0;
+      padding: 12px;
+      border-bottom: 1px solid var(--line-soft);
+      font-size: 14px;
+    }
+
+    .panel-body {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .security-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .security-stat {
+      display: grid;
+      gap: 4px;
+      padding: 9px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--control);
+      background: #f8fafc;
+      min-width: 0;
+    }
+
+    .security-stat span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .security-stat strong {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .backup-confirm {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 8px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--control);
+      background: #f8fafc;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .backup-confirm input {
+      margin-top: 2px;
+    }
+
+    .scan {
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background:
+        linear-gradient(90deg, rgba(23,32,51,0.08) 1px, transparent 1px) 0 0 / 18px 18px,
+        linear-gradient(#ffffff, #f8fafc);
+      padding: 14px;
+    }
+
+    .scan-paper {
+      display: grid;
+      gap: 8px;
+      height: 122px;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    .scan-line {
+      height: 8px;
+      border-radius: 999px;
+      background: #cbd5e1;
+    }
+
+    .scan-line.short { width: 56%; }
+    .scan-line.mid { width: 76%; background: #94a3b8; }
+
+    .rail {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 14px;
+      border-left: 1px solid var(--line);
+      background: #f8fafc;
+      min-width: 0;
+    }
+
+    .alert {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid #fbbf24;
+      border-radius: var(--radius);
+      background: #fffbeb;
+    }
+
+    .alert-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 780;
+    }
+
+    .alert-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .reminder-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .reminder-tab {
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      color: var(--muted);
+      background: #ffffff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .reminder-tab.active {
+      color: var(--action);
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+
+    .reminder-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .reminder-card {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid #fbbf24;
+      border-radius: var(--radius);
+      background: #fffbeb;
+    }
+
+    .reminder-card[data-source="upcoming"] {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+
+    .reminder-card[data-source="history"] {
+      border-color: var(--line);
+      background: #ffffff;
+    }
+
+    .reminder-card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .reminder-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .reminder-actions .primary,
+    .reminder-actions .secondary {
+      justify-content: center;
+      min-height: 32px;
+      padding: 0 8px;
+      font-size: 12px;
+    }
+
+    .device {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #101828;
+      color: #ffffff;
+    }
+
+    .phone-screen {
+      display: grid;
+      gap: 10px;
+      min-height: 390px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #f8fafc;
+      color: var(--ink);
+    }
+
+    .phone-top {
+      display: flex;
+      justify-content: space-between;
+      color: #667085;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .phone-card {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      background: #ffffff;
+    }
+
+    .sync-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      display: none;
+      min-width: 280px;
+      max-width: min(520px, calc(100vw - 32px));
+      padding: 12px 14px;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius);
+      background: #eff6ff;
+      box-shadow: var(--shadow);
+      font-weight: 700;
+      z-index: 20;
+    }
+
+    .toast.show { display: block; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.42);
+      z-index: 30;
+    }
+
+    .modal-backdrop.show { display: grid; }
+
+    .modal {
+      width: min(520px, 100%);
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal-head,
+    .modal-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-foot {
+      justify-content: flex-end;
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .conflict-list {
+      display: grid;
+      gap: 10px;
+      max-height: 54vh;
+      overflow: auto;
+    }
+
+    .conflict-card {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: #f8fafc;
+    }
+
+    .conflict-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .conflict-options label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .conflict-diff {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .conflict-version {
+      display: grid;
+      gap: 4px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: #ffffff;
+      min-width: 0;
+    }
+
+    .conflict-version strong,
+    .conflict-version span {
+      overflow-wrap: anywhere;
+    }
+
+    .conflict-option-help {
+      min-height: 20px;
+    }
+
+    .field-merge-list {
+      display: grid;
+      gap: 6px;
+      padding: 8px;
+      border: 1px dashed var(--line);
+      border-radius: var(--control);
+      background: #ffffff;
+    }
+
+    .field-merge-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .sync-review-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .sync-review-item {
+      display: grid;
+      gap: 4px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: #f8fafc;
+    }
+
+    .sync-review-item span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .sync-review-list {
+      display: grid;
+      gap: 6px;
+      max-height: 180px;
+      overflow: auto;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .sync-review-list li {
+      padding: 8px 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--control);
+      background: #ffffff;
+      font-size: 13px;
+    }
+
+    .record-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .form-field.full {
+      grid-column: 1 / -1;
+    }
+
+    .form-field label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #344054;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      padding: 8px 10px;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    .form-field textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .qr {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      width: 168px;
+      height: 168px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--control);
+      background: #ffffff;
+    }
+
+    .qr svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .qr span {
+      border-radius: 2px;
+      background: #172033;
+    }
+
+    .qr span:nth-child(3n) { background: transparent; }
+    .qr span:nth-child(5n) { background: #0f766e; }
+    .qr span.off { background: transparent; }
+
+    @media (max-width: 1280px) {
+      .shell {
+        grid-template-columns: 220px minmax(300px, 380px) minmax(420px, 1fr);
+      }
+
+      .rail {
+        display: none;
+      }
+    }
+
+    @media (max-width: 920px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar,
+      .main-list {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .detail-body {
+        grid-template-columns: 1fr;
+      }
+
+      .field {
+        grid-template-columns: 1fr auto;
+      }
+
+      .field label {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">L</div>
+        <div class="brand-name">LoginTo</div>
+        <button class="icon-btn" title="锁定保险箱" data-toast="保险箱已锁定，敏感字段需要再次验证">L</button>
+      </div>
+
+      <label class="search">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="搜索账号、会员、银行卡">
+      </label>
+
+      <section>
+        <p class="nav-title">保险箱</p>
+        <div class="nav" id="typeNav">
+          <button class="active" data-type="all"><span>▦</span><span>全部记录</span><span class="count">18</span></button>
+          <button data-type="account"><span>＠</span><span>网站账号</span><span class="count">8</span></button>
+          <button data-type="bank"><span>▣</span><span>银行卡</span><span class="count">3</span></button>
+          <button data-type="member"><span>★</span><span>会员信息</span><span class="count">5</span></button>
+          <button data-type="id"><span>◇</span><span>证件密钥</span><span class="count">2</span></button>
+        </div>
+      </section>
+
+      <section>
+        <p class="nav-title">状态</p>
+        <div class="nav">
+          <button data-toast="正在展示未来 30 天内需要处理的提醒"><span>!</span><span>到期提醒</span><span class="count">2</span></button>
+          <button data-toast="当前桌面与手机已面对面验证"><span>⇄</span><span>近场同步</span><span class="count">1</span></button>
+          <button data-toast="本机附件均为加密 blob"><span>▤</span><span>图片附件</span><span class="count">4</span></button>
+        </div>
+      </section>
+
+      <div class="secure-note">
+        <strong>本地优先</strong>
+        <span>保险箱内容只保存在终端本机。同步通过面对面配对、局域网或离线加密包完成。</span>
+      </div>
+    </aside>
+
+    <section class="main-list">
+      <header class="section-head">
+        <div>
+          <h1>记录</h1>
+          <div class="muted" id="listHint">18 条本地记录，2 条即将到期</div>
+        </div>
+        <div class="seg" aria-label="记录视图">
+          <button class="active" data-toast="列表视图">列</button>
+          <button data-toast="紧凑视图">紧</button>
+        </div>
+      </header>
+
+      <div class="record-list" id="recordList">
+        <button class="record-row active" data-type="account" data-record="github">
+          <span class="type-icon type-account">＠</span>
+          <span class="row-main">
+            <p class="row-title">GitHub</p>
+            <span class="row-sub"><span>github-user</span><span class="badge secret">二次解锁</span></span>
+          </span>
+          <span class="badge sync">已同步</span>
+        </button>
+        <button class="record-row" data-type="member" data-record="lounge">
+          <span class="type-icon type-member">★</span>
+          <span class="row-main">
+            <p class="row-title">Airport Lounge VIP</p>
+            <span class="row-sub"><span>LOUNGE-2026</span><span class="badge warn">7 天前提醒</span></span>
+          </span>
+          <span class="badge warn">到期</span>
+        </button>
+        <button class="record-row" data-type="bank" data-record="card">
+          <span class="type-icon type-card">▣</span>
+          <span class="row-main">
+            <p class="row-title">招商银行储蓄卡</p>
+            <span class="row-sub"><span>尾号 0826</span><span>账单日提醒</span></span>
+          </span>
+          <span class="badge">本机</span>
+        </button>
+        <button class="record-row" data-type="id" data-record="passport">
+          <span class="type-icon type-id">◇</span>
+          <span class="row-main">
+            <p class="row-title">护照</p>
+            <span class="row-sub"><span>2028-09-12 到期</span><span class="badge danger">证件</span></span>
+          </span>
+          <span class="badge">附件</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="detail">
+      <header class="detail-top">
+        <div class="detail-title">
+          <h2 id="detailTitle">GitHub</h2>
+          <div class="muted" id="detailSubtitle">网站账号 · 最近更新 10:36 · 已加密保存</div>
+        </div>
+        <div class="toolbar">
+          <button class="secondary" id="copyBtn">C 复制</button>
+          <button class="secondary" id="revealBtn">U 解锁</button>
+          <button class="secondary" id="editBtn">E 编辑</button>
+          <button class="secondary" id="deleteBtn">D 删除</button>
+          <button class="primary" id="addBtn">+ 新增</button>
+        </div>
+      </header>
+
+      <div class="detail-body">
+        <div class="fields" id="fieldList">
+          <div class="field">
+            <label>用户名</label>
+            <div class="field-value">github-user</div>
+            <div class="field-actions"><button class="mini-btn" title="复制">C</button></div>
+          </div>
+          <div class="field">
+            <label>密码</label>
+            <div class="field-value" data-secret>••••••••••••</div>
+            <div class="field-actions"><button class="mini-btn" title="显示">U</button><button class="mini-btn" title="复制">C</button></div>
+          </div>
+          <div class="field">
+            <label>登录网址</label>
+            <div class="field-value">https://github.com</div>
+            <div class="field-actions"><button class="mini-btn" title="打开">↗</button></div>
+          </div>
+          <div class="field">
+            <label>备注</label>
+            <div class="field-value">主账号，启用 2FA，备份码已加密保存。</div>
+            <div class="field-actions"><button class="mini-btn" title="编辑">E</button></div>
+          </div>
+        </div>
+
+        <aside class="side-info">
+          <section class="panel" data-security-panel>
+            <h3>本地保险箱安全</h3>
+            <div class="panel-body">
+              <div class="security-grid">
+                <div class="security-stat">
+                  <span>锁定状态</span>
+                  <strong data-security-lock-state>等待加载</strong>
+                </div>
+                <div class="security-stat">
+                  <span>敏感字段</span>
+                  <strong data-security-sensitive-count>0 项</strong>
+                </div>
+                <div class="security-stat">
+                  <span>二次解锁</span>
+                  <strong data-security-second-unlock>未开启</strong>
+                </div>
+                <div class="security-stat">
+                  <span>复制清理</span>
+                  <strong data-security-copy-clear>30 秒</strong>
+                </div>
+              </div>
+              <span class="muted" data-security-autolock>主密码会自动锁定；关键字段需要二次确认后临时显示。</span>
+              <button class="sync-action" type="button" data-action="security-second-unlock"><span>二次解锁查看敏感字段</span><span>U</span></button>
+            </div>
+          </section>
+
+          <section class="panel" data-local-data-panel>
+            <h3>本机数据</h3>
+            <div class="panel-body">
+              <div class="security-grid">
+                <div class="security-stat">
+                  <span>保存模式</span>
+                  <strong data-local-data-kind>等待加载</strong>
+                </div>
+                <div class="security-stat">
+                  <span>本机记录</span>
+                  <strong data-local-data-records>0 条</strong>
+                </div>
+              </div>
+              <span class="muted" data-local-data-vault>记录快照：等待加载</span>
+              <span class="muted" data-local-data-runtime>运行状态：等待加载</span>
+              <span class="muted" data-local-data-sqlite>SQLite：按需启用</span>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h3>附件备注</h3>
+            <div class="panel-body">
+              <div class="scan" aria-label="拍照附件">
+                <div class="scan-paper">
+                  <div class="scan-line mid"></div>
+                  <div class="scan-line"></div>
+                  <div class="scan-line short"></div>
+                  <div class="scan-line"></div>
+                </div>
+              </div>
+              <span class="muted">拍照后自动识别为会员卡图片，原图作为加密附件保留。</span>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h3>提醒</h3>
+            <div class="panel-body">
+              <span class="badge warn">2026-12-24 09:00</span>
+              <strong>会员 7 天后到期</strong>
+              <span class="muted">弹窗投递后会记录状态，重启不会重复弹。</span>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <aside class="rail">
+      <header>
+        <h2>终端同步</h2>
+        <div class="muted">桌面 · 手机 · 平板，本地面对面传输</div>
+      </header>
+
+      <section class="alert" data-desktop-reminder-center>
+        <div class="alert-title">
+          <span>提醒中心</span>
+          <span class="toolbar">
+            <button class="secondary" type="button" data-dispatch-reminders>发送系统提醒</button>
+            <span class="badge warn" data-desktop-reminder-count>0 条</span>
+          </span>
+        </div>
+        <div class="muted" data-notification-bridge-status>本机通知桥接待命</div>
+        <div class="reminder-tabs" data-desktop-reminder-tabs></div>
+        <div class="reminder-list" data-desktop-reminder-list></div>
+      </section>
+
+      <section class="device">
+        <div class="phone-screen">
+          <div class="phone-top"><span>Phone</span><span>本地保险箱</span></div>
+          <div class="phone-card">
+            <strong>拍照录入</strong>
+            <span class="muted">OCR 识别会员号、到期日、客服电话，确认后写入保险箱。</span>
+            <span class="badge sync">图片已加密</span>
+          </div>
+          <div class="phone-card">
+            <strong id="pairingTitle">面对面配对</strong>
+            <div class="qr" id="pairingQr" aria-label="同步二维码">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <span class="muted" id="pairingCode">6 位校验码：412666</span>
+            <span class="muted" id="pairingExpiry">等待生成配对窗口</span>
+            <textarea id="pairingPayloadText" data-desktop-pairing-payload rows="3" readonly placeholder="QR payload"></textarea>
+            <button class="secondary" type="button" id="copyPairingPayloadBtn" data-desktop-pairing-copy>复制 QR payload</button>
+          </div>
+          <button class="sync-action" id="syncBtn"><span id="syncBtnLabel">刷新配对码</span><span>⇄</span></button>
+          <button class="sync-action" id="confirmPairingBtn"><span>等待手机扫码</span><span>⌁</span></button>
+          <button class="sync-action" id="discoveryScanBtn"><span>扫描近场设备</span><span>⌕</span></button>
+          <button class="sync-action" data-sync-target="phone"><span>发送到手机</span><span>⇢</span></button>
+          <button class="sync-action" data-sync-target="tablet"><span>发送到平板</span><span>⇢</span></button>
+          <span class="muted" data-discovery-probes>近场探测：等待扫描</span>
+          <div class="reminder-list" data-desktop-connection-state></div>
+          <div class="reminder-list" data-near-field-candidates></div>
+          <span class="muted" data-desktop-sync-preview>同步请求：暂无</span>
+          <span class="muted" data-desktop-sync-records>涉及记录：暂无</span>
+          <span class="muted" data-desktop-sync-receipt>最近同步：暂无</span>
+          <div class="reminder-list" data-desktop-sync-center></div>
+          <div class="reminder-list" data-desktop-trusted-devices></div>
+          <div class="reminder-list" data-desktop-sync-audit-log></div>
+        </div>
+      </section>
+
+      <section class="alert" data-backup-panel>
+        <div class="alert-title"><span>本地备份</span><span class="badge sync" data-backup-status>就绪</span></div>
+        <div class="muted" data-backup-copy>加密备份包会保存到本机 .tmp，可先验证能否恢复。</div>
+        <label class="backup-confirm">
+          <input type="checkbox" data-backup-confirm>
+          <span data-backup-confirm-copy>我确认要导出本机加密备份包，并会妥善保管恢复密码和本地文件。</span>
+        </label>
+        <button class="sync-action" type="button" data-action="backup-export"><span>导出加密备份</span><span>↓</span></button>
+        <button class="sync-action" type="button" data-action="backup-verify"><span>验证备份可恢复</span><span>✓</span></button>
+      </section>
+    </aside>
+  </main>
+
+  <div class="modal-backdrop show" id="reminderModal">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <strong id="modalTitle">会员到期提醒</strong>
+        <button class="icon-btn" id="closeModal" title="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <span class="badge warn">Airport Lounge VIP</span>
+        <div>会员将在 <strong>2026-12-31</strong> 到期。建议现在续费或标记已处理。</div>
+        <div class="muted">这条提醒已经写入本机通知状态，关闭 App 后不会重复弹同一次提醒。</div>
+      </div>
+      <div class="modal-foot">
+        <button class="secondary" data-modal-action="snooze">稍后提醒</button>
+        <button class="secondary" data-modal-action="dismiss">忽略</button>
+        <button class="primary" data-modal-action="done">已处理</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="recordModal">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="recordModalTitle">
+      <form class="record-form" id="recordForm">
+        <div class="modal-head">
+          <strong id="recordModalTitle">新增本地记录</strong>
+          <button class="icon-btn" type="button" id="closeRecordModal" title="关闭">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>类型</span>
+              <select id="recordTypeInput" name="type">
+                <option value="account">网站账号</option>
+                <option value="membership">会员信息</option>
+                <option value="bank_card">银行卡</option>
+                <option value="identity_document">证件信息</option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span>标题</span>
+              <input id="recordTitleInput" name="title" required placeholder="例如 GitHub / 航司会员 / 招商银行卡">
+            </label>
+            <label class="form-field">
+              <span>主字段</span>
+              <input id="recordPrimaryInput" name="primary" placeholder="用户名、会员号、卡号或证件号">
+            </label>
+            <label class="form-field">
+              <span>到期/提醒日期</span>
+              <input id="recordDueInput" name="due" type="date">
+            </label>
+            <label class="form-field full">
+              <span>网址/服务电话/发卡行</span>
+              <input id="recordMetaInput" name="meta" placeholder="可选">
+            </label>
+            <label class="form-field full">
+              <span>备注</span>
+              <textarea id="recordNotesInput" name="notes" placeholder="本地加密保存，可写入自动整理后的附件说明"></textarea>
+            </label>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="secondary" type="button" id="cancelRecordModal">取消</button>
+          <button class="primary" type="submit">保存到本机</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="conflictModal">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="conflictModalTitle">
+      <div class="modal-head">
+        <strong id="conflictModalTitle">处理同步冲突</strong>
+        <button class="icon-btn" type="button" data-conflict-cancel title="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="muted">请选择每条冲突记录的处理方式。确认前不会写入对方设备。</div>
+        <div class="muted" data-conflict-decision-summary>等待选择冲突处理方式</div>
+        <div class="conflict-list" data-conflict-list></div>
+      </div>
+      <div class="modal-foot">
+        <button class="secondary" type="button" data-conflict-cancel>取消</button>
+        <button class="primary" type="button" data-conflict-confirm>确认处理</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="syncReviewModal">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="syncReviewTitle">
+      <div class="modal-head">
+        <strong id="syncReviewTitle">确认本次同步</strong>
+        <button class="icon-btn" type="button" data-sync-review-cancel title="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="sync-review-grid">
+          <div class="sync-review-item"><span>对方设备</span><strong data-sync-review-peer>--</strong></div>
+          <div class="sync-review-item"><span>请求时间</span><strong data-sync-review-time>--</strong></div>
+          <div class="sync-review-item"><span>有效至</span><strong data-sync-review-expires>--</strong></div>
+          <div class="sync-review-item"><span>连接方式</span><strong data-sync-review-transport>--</strong></div>
+          <div class="sync-review-item"><span>对方地址</span><strong data-sync-review-peer-url>--</strong></div>
+          <div class="sync-review-item"><span>设备指纹</span><strong data-sync-review-fingerprint>--</strong></div>
+          <div class="sync-review-item"><span>公网登录</span><strong data-sync-review-public-network>--</strong></div>
+          <div class="sync-review-item"><span>变更摘要</span><strong data-sync-review-summary>--</strong></div>
+          <div class="sync-review-item"><span>信任状态</span><strong data-sync-review-trust>--</strong></div>
+        </div>
+        <ul class="sync-review-list" data-sync-review-records></ul>
+        <div class="muted">确认后才会交换加密同步包；如存在冲突，会先进入冲突处理。</div>
+      </div>
+      <div class="modal-foot">
+        <button class="secondary" type="button" data-sync-review-cancel>取消同步</button>
+        <button class="secondary" type="button" data-sync-review-peer-reject>对方拒绝</button>
+        <button class="secondary" type="button" data-sync-review-timeout>等待超时</button>
+        <button class="primary" type="button" data-sync-review-confirm>确认同步</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let records = {
+      github: {
+        id: "github",
+        type: "account",
+        title: "GitHub",
+        subtitle: "网站账号 · 最近更新 10:36 · 已加密保存",
+        icon: "＠",
+        badge: "已同步",
+        badgeTone: "sync",
+        fields: [
+          { label: "用户名", value: "github-user" },
+          { label: "密码", value: "••••••••••••", secret: true },
+          { label: "登录网址", value: "https://github.com" },
+          { label: "备注", value: "主账号，启用 2FA，备份码已加密保存。" }
+        ]
+      }
+    };
+    let activeType = "all";
+    let currentState;
+    let currentReminderAlertId;
+    let currentSelectedRecordId = "github";
+    let currentPairingCode;
+    let currentPairingPayloadText;
+    let currentNearFieldDiscovery;
+    let recordFormMode = "create";
+    let editingRecordId;
+    let activeReminderFilter = "all";
+
+    const toast = document.getElementById("toast");
+    const fieldList = document.getElementById("fieldList");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailSubtitle = document.getElementById("detailSubtitle");
+    const searchInput = document.getElementById("searchInput");
+    const modal = document.getElementById("reminderModal");
+    const recordModal = document.getElementById("recordModal");
+    const recordForm = document.getElementById("recordForm");
+    const recordModalTitle = document.getElementById("recordModalTitle");
+    const recordList = document.getElementById("recordList");
+    const typeNav = document.getElementById("typeNav");
+    const conflictModal = document.getElementById("conflictModal");
+    const conflictList = document.querySelector("[data-conflict-list]");
+    const conflictConfirmButton = document.querySelector("[data-conflict-confirm]");
+    const conflictCancelButtons = document.querySelectorAll("[data-conflict-cancel]");
+    const syncReviewModal = document.getElementById("syncReviewModal");
+    const syncReviewPeer = document.querySelector("[data-sync-review-peer]");
+    const syncReviewTime = document.querySelector("[data-sync-review-time]");
+    const syncReviewExpires = document.querySelector("[data-sync-review-expires]");
+    const syncReviewTransport = document.querySelector("[data-sync-review-transport]");
+    const syncReviewPeerUrl = document.querySelector("[data-sync-review-peer-url]");
+    const syncReviewFingerprint = document.querySelector("[data-sync-review-fingerprint]");
+    const syncReviewPublicNetwork = document.querySelector("[data-sync-review-public-network]");
+    const syncReviewSummary = document.querySelector("[data-sync-review-summary]");
+    const syncReviewTrust = document.querySelector("[data-sync-review-trust]");
+    const syncReviewRecords = document.querySelector("[data-sync-review-records]");
+    const syncReviewConfirmButton = document.querySelector("[data-sync-review-confirm]");
+    const syncReviewCancelButtons = document.querySelectorAll("[data-sync-review-cancel]");
+    const syncReviewPeerRejectButton = document.querySelector("[data-sync-review-peer-reject]");
+    const syncReviewTimeoutButton = document.querySelector("[data-sync-review-timeout]");
+    const reminderTabs = document.querySelector("[data-desktop-reminder-tabs]");
+    const reminderList = document.querySelector("[data-desktop-reminder-list]");
+    const notificationBridgeStatus = document.querySelector("[data-notification-bridge-status]");
+    const dispatchRemindersButton = document.querySelector("[data-dispatch-reminders]");
+    const nearFieldCandidates = document.querySelector("[data-near-field-candidates]");
+    const discoveryProbes = document.querySelector("[data-discovery-probes]");
+    const backupStatus = document.querySelector("[data-backup-status]");
+    const backupCopy = document.querySelector("[data-backup-copy]");
+    const backupConfirm = document.querySelector("[data-backup-confirm]");
+    const securityLockState = document.querySelector("[data-security-lock-state]");
+    const securitySensitiveCount = document.querySelector("[data-security-sensitive-count]");
+    const securitySecondUnlock = document.querySelector("[data-security-second-unlock]");
+    const securityCopyClear = document.querySelector("[data-security-copy-clear]");
+    const securityAutolock = document.querySelector("[data-security-autolock]");
+    const localDataKind = document.querySelector("[data-local-data-kind]");
+    const localDataRecords = document.querySelector("[data-local-data-records]");
+    const localDataVault = document.querySelector("[data-local-data-vault]");
+    const localDataRuntime = document.querySelector("[data-local-data-runtime]");
+    const localDataSqlite = document.querySelector("[data-local-data-sqlite]");
+    let lastBackupPackageJson;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function renderRecord(id) {
+      const record = records[id];
+      if (!record) return;
+      currentSelectedRecordId = id;
+      detailTitle.textContent = record.title;
+      detailSubtitle.textContent = record.subtitle;
+      fieldList.innerHTML = record.fields.map((field) => `
+        <div class="field" data-field-label="${escapeHtml(field.label)}">
+          <label>${escapeHtml(field.label)}</label>
+          <div class="field-value" ${field.secret ? `data-secret data-sensitivity="${escapeHtml(field.sensitivity || "secret")}"` : ""}>${escapeHtml(field.value)}</div>
+          <div class="field-actions">
+            ${field.secret ? '<button class="mini-btn" title="显示" data-field-action="reveal">U</button>' : ""}
+            <button class="mini-btn" title="复制" data-field-action="copy">C</button>
+          </div>
+        </div>
+      `).join("");
+      if (record.attachments?.length) {
+        fieldList.innerHTML += record.attachments.map((attachment) => `
+          <div class="field" data-attachment-id="${escapeHtml(attachment.id)}">
+            <label>加密附件</label>
+            <div class="field-value">${escapeHtml(attachment.id)} · ${escapeHtml(attachment.mimeType)} · ${escapeHtml(attachment.source ?? "sync")}</div>
+            <div class="muted">${escapeHtml(attachment.encryptedBlobPath ?? "")} · ${Math.round((attachment.encryptedSize ?? 0) / 1024)} KB</div>
+            <div class="field-actions">
+              <button class="mini-btn" title="移除附件引用" data-attachment-action="remove">-</button>
+            </div>
+          </div>
+        `).join("");
+      }
+    }
+
+    function renderRecordList(recordItems, selectedRecordId) {
+      recordList.innerHTML = recordItems.map((record) => `
+        <button class="record-row ${record.id === selectedRecordId ? "active" : ""}" data-type="${escapeHtml(record.type)}" data-record="${escapeHtml(record.id)}">
+          <span class="type-icon ${typeIconClass(record.type)}">${escapeHtml(record.icon)}</span>
+          <span class="row-main">
+            <p class="row-title">${escapeHtml(record.title)}</p>
+            <span class="row-sub"><span>${escapeHtml(record.subtitle.split("·")[0].trim())}</span></span>
+          </span>
+          <span class="badge ${escapeHtml(record.badgeTone)}">${escapeHtml(record.badge)}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderNav(navItems) {
+      typeNav.innerHTML = navItems.map((item) => `
+        <button class="${item.type === activeType ? "active" : ""}" data-type="${escapeHtml(item.type)}">
+          <span>${escapeHtml(item.icon)}</span><span>${escapeHtml(item.label)}</span><span class="count">${item.count}</span>
+        </button>
+      `).join("");
+    }
+
+    function applyAppState(state) {
+      currentState = state;
+      records = Object.fromEntries(state.records.map((record) => [record.id, record]));
+      currentReminderAlertId = state.reminderModal.alertId;
+      renderNav(state.nav);
+      renderRecordList(state.records, state.selectedRecordId);
+      renderRecord(state.selectedRecordId);
+      document.getElementById("listHint").textContent = `${state.vault.records} 条本地记录，${state.vault.dueReminders} 条即将到期`;
+      document.getElementById("modalTitle").textContent = state.reminderModal.title;
+      document.querySelector(".modal-body").innerHTML = `
+        <span class="badge warn">${escapeHtml(state.reminderModal.recordTitle)}</span>
+        <div>${escapeHtml(state.reminderModal.body)}</div>
+        <div class="muted">通知状态：${escapeHtml(state.reminderModal.status)} · 本机保存 ${state.reminderModal.deliveries} 条投递记录。</div>
+      `;
+      document.querySelector(".phone-card strong").textContent = state.phonePreview.title;
+      document.querySelector(".phone-card .muted").textContent = state.phonePreview.body;
+      document.querySelector(".phone-card .badge").textContent = state.phonePreview.attachmentStatus;
+      renderPairingPreview(state.sync);
+      renderNearFieldCandidates(state.sync?.discovery);
+      renderDesktopConnectionState(state.sync?.connectionState ?? state.sync?.syncCenter?.connectionState);
+      renderSyncPreview(state.sync?.pendingConfirmation);
+      renderSyncReceipt(state.sync?.lastReceiptSummary ?? state.sync?.lastReceipt);
+      renderDesktopSyncCenter(state.sync?.syncCenter);
+      renderDesktopSyncAuditLog(state.sync?.recentReceipts);
+      renderDesktopTrustedDevices(state.sync?.trustedDeviceSummaries, state.sync?.trustedDeviceRevocations);
+      renderDesktopReminderCenter(state.reminderCenter);
+      renderNotificationBridge(state.notificationBridge);
+      renderBackupPanel(state.backup);
+      renderSecurityPanel(state.security, state.records);
+      renderLocalDataPanel(state.vault, state.backup);
+      showToast("已从本机加载保险箱状态");
+    }
+
+    function renderLocalDataPanel(vault, backup) {
+      const storageKind = vault?.storageKind === "sqlite" ? "SQLite 本机库" : "本机文件";
+      localDataKind.textContent = storageKind;
+      localDataRecords.textContent = `${vault?.records ?? 0} 条`;
+      localDataVault.textContent = `记录快照：${vault?.vaultPath ?? ".tmp"}`;
+      localDataRuntime.textContent = `运行状态：${vault?.runtimeStatePath ?? ".tmp"}`;
+      localDataSqlite.textContent = vault?.storageKind === "sqlite"
+        ? `SQLite：${vault.sqliteVaultPath ?? "已启用"}`
+        : `备份包：${backup?.targetPath ?? ".tmp"}`;
+    }
+
+    function renderBackupPanel(backup) {
+      backupStatus.textContent = backup?.status === "ready" ? "就绪" : "等待";
+      backupCopy.textContent = backup?.targetPath
+        ? `格式：${backup.format} · 目标：${backup.targetPath}`
+        : "加密备份包会保存到本机 .tmp，可先验证能否恢复。";
+    }
+
+    function renderSecurityPanel(security, recordItems = []) {
+      const lockState = security?.lockState ?? "unknown";
+      const sensitiveCount = recordItems.reduce((count, record) => {
+        return count + (record.fields ?? []).filter((field) => field.secret || field.sensitivity === "secret" || field.sensitivity === "critical").length;
+      }, 0);
+      const secondUnlockedUntil = security?.secondUnlockedUntil ? new Date(security.secondUnlockedUntil) : null;
+      const secondUnlockActive = secondUnlockedUntil && secondUnlockedUntil.getTime() > Date.now();
+      securityLockState.textContent = lockState === "unlocked" ? "已解锁" : lockState === "locked" ? "已锁定" : "等待加载";
+      securitySensitiveCount.textContent = `${sensitiveCount} 项`;
+      securitySecondUnlock.textContent = secondUnlockActive
+        ? `有效至 ${secondUnlockedUntil.toLocaleTimeString("zh-CN", { hour12: false })}`
+        : "未开启";
+      securityCopyClear.textContent = `${security?.copyClearSeconds ?? 30} 秒后清除`;
+      securityAutolock.textContent = `主密码 ${security?.autoLockSeconds ?? 300} 秒无操作自动锁定；关键字段需要二次确认。`;
+    }
+
+    function renderDesktopReminderCenter(reminderCenter) {
+      const filters = reminderCenter?.filters ?? [];
+      const items = reminderCenter?.items ?? [];
+      document.querySelector("[data-desktop-reminder-count]").textContent = `${items.length} 条`;
+      reminderTabs.replaceChildren();
+      for (const filter of filters) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `reminder-tab${filter.id === activeReminderFilter ? " active" : ""}`;
+        button.textContent = `${filter.label} ${filter.count}`;
+        button.addEventListener("click", () => {
+          activeReminderFilter = filter.id;
+          renderDesktopReminderCenter(reminderCenter);
+        });
+        reminderTabs.append(button);
+      }
+      const visibleItems = items.filter((item) => activeReminderFilter === "all" || item.source === activeReminderFilter);
+      reminderList.replaceChildren();
+      for (const item of visibleItems.length ? visibleItems : [undefined]) {
+        if (!item) {
+          const empty = document.createElement("div");
+          empty.className = "reminder-card";
+          empty.dataset.source = "history";
+          empty.innerHTML = `<strong>暂无提醒</strong><span class="muted">这个分类下还没有需要处理的提醒。</span>`;
+          reminderList.append(empty);
+          continue;
+        }
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = item.source;
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="badge ${item.source === "due" ? "warn" : ""}">${reminderStatusLabel(item)}</span>
+          </div>
+          <span class="muted"></span>
+          <span class="muted" data-reminder-status-detail></span>
+          <div class="reminder-actions" ${item.canAct ? "" : "hidden"}>
+            <button class="primary" type="button" data-reminder-action="complete">完成</button>
+            <button class="secondary" type="button" data-reminder-action="snooze">稍后</button>
+            <button class="secondary" type="button" data-reminder-action="dismiss">忽略</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = item.recordTitle;
+        card.querySelector(".muted").textContent = `${item.body} · 提醒时间：${formatReminderTime(item.triggerAt)}`;
+        card.querySelector("[data-reminder-status-detail]").textContent = formatReminderStatusDetail(item);
+        card.querySelectorAll("[data-reminder-action]").forEach((button) => {
+          button.addEventListener("click", () => handleDesktopReminderAction(item, button.dataset.reminderAction));
+        });
+        reminderList.append(card);
+      }
+    }
+
+    function reminderStatusLabel(item) {
+      if (item.status === "completed") return "已完成";
+      if (item.status === "snoozed") return "已稍后";
+      if (item.status === "dismissed") return "已忽略";
+      if (item.source === "upcoming") return "即将";
+      return "到期";
+    }
+
+    function formatReminderTime(value) {
+      return new Date(value).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+
+    function formatReminderStatusDetail(item) {
+      const lastStatus = item.lastStatusAt ? `处理时间：${formatReminderTime(item.lastStatusAt)}` : "等待处理";
+      const snoozed = item.snoozedUntil ? ` · 稍后提醒：${formatReminderTime(item.snoozedUntil)}` : "";
+      return `${lastStatus}${snoozed} · 状态记录保存在本机`;
+    }
+
+    function renderNotificationBridge(bridge) {
+      if (!notificationBridgeStatus) return;
+      const last = bridge?.lastDispatch?.payload?.recordTitle;
+      notificationBridgeStatus.textContent = last
+        ? `系统提醒桥接已记录 ${bridge.dispatched} 次，最近：${last}`
+        : `系统提醒桥接待命，日志：${bridge?.dispatchLogPath ?? "未生成"}`;
+    }
+
+    async function dispatchDesktopReminderNotifications() {
+      dispatchRemindersButton.disabled = true;
+      try {
+        const response = await fetch("/api/reminders/dispatch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        });
+        if (!response.ok) {
+          throw new Error(`dispatch reminders ${response.status}`);
+        }
+        const result = await response.json();
+        applyAppState(result.appState);
+        showToast(result.dispatches.length ? `已发送 ${result.dispatches.length} 条系统提醒` : "没有新的到期提醒需要发送");
+      } catch {
+        showToast("系统提醒发送失败，请检查本机通知权限");
+      } finally {
+        dispatchRemindersButton.disabled = false;
+      }
+    }
+
+    async function handleDesktopReminderAction(item, action) {
+      try {
+        const body = {
+          action,
+          alertId: item.alertId
+        };
+        if (action === "snooze") {
+          body.snoozedUntil = "2026-12-20T10:00:00.000Z";
+        }
+        const response = await fetch("/api/reminders/action", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!response.ok) {
+          throw new Error(`reminder action ${response.status}`);
+        }
+        const nextState = await response.json();
+        applyAppState(nextState);
+        showToast(`提醒已${action === "complete" ? "完成" : action === "snooze" ? "稍后提醒" : "忽略"}`);
+      } catch {
+        showToast("提醒处理失败，请保持本地状态可写");
+      }
+    }
+
+    function renderDesktopConnectionState(connection) {
+      const node = document.querySelector("[data-desktop-connection-state]");
+      if (!node) return;
+      node.replaceChildren();
+      const card = document.createElement("article");
+      card.className = "reminder-card";
+      card.dataset.source = connection?.stage === "offline" || connection?.stage === "failed" ? "due" : "upcoming";
+      card.dataset.peerKind = connection?.peerDevice?.kind ?? "phone";
+      const stepHtml = (connection?.steps ?? []).map((step) => {
+        const tone = step.status === "failed" ? "warn" : step.status === "done" ? "sync" : "";
+        return `<span class="badge ${tone}">${escapeHtml(step.label)} · ${escapeHtml(step.status)}</span>`;
+      }).join("");
+      card.innerHTML = `
+        <div class="reminder-card-head">
+          <strong></strong>
+          <span class="badge ${connection?.stage === "offline" || connection?.stage === "failed" ? "warn" : "sync"}"></span>
+        </div>
+        <p></p>
+        <p class="muted"></p>
+        <div class="chips"></div>
+        <div class="reminder-actions">
+          <button class="secondary" type="button" data-desktop-sync-center-action="">执行下一步</button>
+        </div>
+      `;
+      card.querySelector("strong").textContent = connection?.label ?? "等待近场连接";
+      card.querySelector(".reminder-card-head .badge").textContent = connection?.stage ?? "idle";
+      card.querySelector("p").textContent = connection?.summary ?? "同步只会在本地可通讯设备之间开始。";
+      card.querySelector(".muted").textContent = [
+        `对方：${connection?.peerDevice?.name ?? "未选择"}`,
+        `连接：${connection?.transport ?? "待扫描"}`,
+        `需信任：${connection?.requiresFaceToFaceTrust ? "是" : "否"}`,
+        `需确认：${connection?.requiresLocalConfirmation ? "是" : "否"}`,
+        `公网登录：${connection?.publicNetworkLogin ? "是" : "否"}`,
+        `下一步：${connection?.nextAction ?? "scan"}`
+      ].join(" · ");
+      card.querySelector(".chips").innerHTML = stepHtml;
+      const nextButton = card.querySelector("[data-desktop-sync-center-action]");
+      const nextAction = mapConnectionNextAction(connection?.nextAction);
+      nextButton.dataset.desktopSyncCenterAction = nextAction;
+      if (nextAction === "retry-sync") {
+        nextButton.dataset.syncRetryRequest = JSON.stringify(createDesktopConnectionRetryRequest(connection));
+      }
+      nextButton.textContent = formatConnectionNextActionLabel(connection?.nextAction);
+      node.append(card);
+    }
+
+    function mapConnectionNextAction(action) {
+      if (action === "scan" || action === "wait") return "rescan";
+      if (action === "pair" || action === "repair-pairing") return "repair-pairing";
+      if (action === "retry-sync") return "retry-sync";
+      if (action === "done") return "rescan";
+      return "review-sync";
+    }
+
+    function formatConnectionNextActionLabel(action) {
+      if (action === "scan") return "扫描近场设备";
+      if (action === "pair") return "面对面配对";
+      if (action === "repair-pairing") return "重新配对";
+      if (action === "retry-sync") return "重试同步";
+      if (action === "done") return "再次扫描";
+      if (action === "wait") return "等待对方响应";
+      return "查看同步摘要";
+    }
+
+    function createDesktopConnectionRetryRequest(connection) {
+      const kind = connection?.peerDevice?.kind === "tablet" ? "tablet" : "phone";
+      return {
+        targetKind: kind,
+        targetBaseUrl: connection?.peerEndpoint,
+        targetDeviceId: connection?.peerDevice?.id,
+        targetDeviceName: connection?.peerDevice?.name,
+        targetPublicKeyBase64: connection?.peerDevice?.publicKeyBase64
+      };
+    }
+
+    function renderSyncPreview(confirmation) {
+      const node = document.querySelector("[data-desktop-sync-preview]");
+      const recordsNode = document.querySelector("[data-desktop-sync-records]");
+      if (!node) return;
+      node.textContent = confirmation
+        ? `同步请求：${confirmation.peerDevice.name} · ${new Date(confirmation.requestedAt).toLocaleTimeString("zh-CN", { hour12: false })} · 将发送 ${confirmation.preview.sendChanges} 条 · 将接收 ${confirmation.preview.receiveChanges} 条 · ${confirmation.transport}`
+        : "同步请求：暂无";
+      if (recordsNode) {
+        const sendTitles = (confirmation?.recordsToSend ?? []).slice(0, 3).map((item) => item.record.title);
+        const receiveTitles = (confirmation?.recordsToReceive ?? []).slice(0, 3).map((item) => item.record.title);
+        const conflictTitles = (confirmation?.conflicts ?? []).slice(0, 3).map((item) => item.title);
+        const chunks = [];
+        if (sendTitles.length) chunks.push(`发送：${sendTitles.join("、")}`);
+        if (receiveTitles.length) chunks.push(`接收：${receiveTitles.join("、")}`);
+        if (conflictTitles.length) chunks.push(`冲突：${conflictTitles.join("、")}`);
+        recordsNode.textContent = chunks.length ? `涉及记录：${chunks.join("；")}` : "涉及记录：暂无";
+      }
+    }
+
+    function renderSyncReceipt(receipt) {
+      const node = document.querySelector("[data-desktop-sync-receipt]");
+      if (!node) return;
+      node.textContent = receipt
+        ? receipt.displayLabel ?? receipt.label ?? `最近同步：${receipt.peerName ?? receipt.senderName ?? "未知设备"} · 发送 ${receipt.sentCount ?? 0} 条 · 接收 ${receipt.receivedCount ?? receipt.appliedChanges ?? 0} 条 · 冲突 ${receipt.conflictCount ?? receipt.conflicts ?? 0} 条`
+        : "最近同步：暂无";
+    }
+
+    function renderDesktopSyncCenter(center) {
+      const node = document.querySelector("[data-desktop-sync-center]");
+      if (!node) return;
+      node.replaceChildren();
+      const card = document.createElement("article");
+      card.className = "reminder-card";
+      card.dataset.source = center?.status === "needs-attention" ? "due" : center?.status === "pending-review" ? "upcoming" : "history";
+      card.innerHTML = `
+        <div class="reminder-card-head">
+          <strong></strong>
+          <span class="badge ${center?.status === "needs-attention" ? "warn" : "sync"}"></span>
+        </div>
+        <p></p>
+        <p class="muted"></p>
+        <div class="reminder-actions">
+          <button class="secondary" type="button" data-desktop-sync-center-action="rescan">扫描近场设备</button>
+          <button class="secondary" type="button" data-desktop-sync-center-action="review-sync">查看同步摘要</button>
+          <button class="secondary" type="button" data-desktop-sync-center-action="repair-pairing">重新面对面配对</button>
+        </div>
+        <div class="reminder-list" data-desktop-sync-center-items></div>
+      `;
+      card.querySelector("strong").textContent = center?.headline ?? "本地同步中心";
+      card.querySelector(".badge").textContent = center?.statusLabel ?? "需要配对";
+      card.querySelector("p").textContent = center?.guidance ?? "首次连接必须面对面扫码并核对 6 位校验码。";
+      card.querySelector(".muted").textContent = `可信 ${center?.trustedCount ?? 0} · 待确认 ${center?.pendingCount ?? 0} · 失败 ${center?.failureCount ?? 0} · 已撤销 ${center?.revokedCount ?? 0}`;
+      const list = card.querySelector("[data-desktop-sync-center-items]");
+      const items = center?.items?.length
+        ? center.items
+        : [{ title: center?.actionLabel ?? "面对面配对", copy: center?.guidance ?? "靠近另一台设备后开始。", action: center?.status === "pairing-needed" ? "repair-pairing" : "rescan" }];
+      for (const item of items) {
+        const itemCard = document.createElement("article");
+        itemCard.className = "reminder-card";
+        itemCard.dataset.source = item.kind === "failure" ? "due" : "history";
+        itemCard.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <button class="secondary" type="button">处理</button>
+          </div>
+          <p></p>
+          <p class="muted" data-sync-center-item-detail></p>
+        `;
+        itemCard.querySelector("button").dataset.desktopSyncCenterAction = item.action ?? "rescan";
+        if (item.confirmationId) {
+          itemCard.querySelector("button").dataset.syncConfirmationId = item.confirmationId;
+        }
+        if (item.retryRequest) {
+          itemCard.querySelector("button").dataset.syncRetryRequest = JSON.stringify(item.retryRequest);
+        }
+        itemCard.querySelector("strong").textContent = item.title;
+        itemCard.querySelector("p").textContent = item.copy;
+        itemCard.querySelector("[data-sync-center-item-detail]").textContent = item.detail ? `错误详情：${item.detail}` : "";
+        list.append(itemCard);
+      }
+      node.append(card);
+    }
+
+    function renderDesktopSyncAuditLog(receipts = []) {
+      const node = document.querySelector("[data-desktop-sync-audit-log]");
+      if (!node) return;
+      node.replaceChildren();
+      if (!receipts.length) {
+        const empty = document.createElement("article");
+        empty.className = "reminder-card";
+        empty.dataset.source = "history";
+        empty.innerHTML = "<strong>暂无同步日志</strong><p>完成或失败的本地同步会保留在这里。</p>";
+        node.append(empty);
+        return;
+      }
+      for (const receipt of receipts) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = receipt.status === "failure" ? "due" : "history";
+        const direction = receipt.direction === "incoming" ? "接收" : receipt.direction === "outgoing" ? "发送" : "同步";
+        const syncedAt = receipt.syncedAt ? new Date(receipt.syncedAt).toLocaleString("zh-CN", { hour12: false }) : "未知时间";
+        const recoveryActions = receipt.recoveryActions ?? [];
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="badge ${receipt.status === "failure" ? "warn" : "sync"}">${receipt.status === "failure" ? "失败" : "成功"}</span>
+          </div>
+          <p></p>
+          <p class="muted" ${receipt.status === "failure" ? "" : "hidden"}></p>
+          <div class="reminder-actions" ${receipt.status === "failure" ? "" : "hidden"}>
+            <button class="secondary" type="button" data-sync-recovery-action="rescan" ${recoveryActions.includes("rescan") ? "" : "hidden"}>重新扫描</button>
+            <button class="secondary" type="button" data-sync-recovery-action="retry-sync" ${recoveryActions.includes("retry-sync") && receipt.retryRequest ? "" : "hidden"}>重试同步</button>
+            <button class="secondary" type="button" data-sync-recovery-action="repair" ${recoveryActions.includes("repair-pairing") ? "" : "hidden"}>重新配对</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = `${direction} · ${receipt.peerName ?? "未知设备"}`;
+        card.querySelectorAll("[data-sync-recovery-action]").forEach((recoveryButton) => {
+          if (receipt.retryRequest) {
+            recoveryButton.dataset.syncRetryRequest = JSON.stringify(receipt.retryRequest);
+          }
+        });
+        card.querySelector("p").textContent = `${syncedAt} · ${receipt.transport ?? "local-network"} · 发 ${receipt.sentCount ?? 0} / 收 ${receipt.receivedCount ?? 0} / 冲突 ${receipt.conflictCount ?? 0}${receipt.failureReason ? ` · ${receipt.recoveryTitle}` : receipt.error ? ` · ${receipt.error}` : ""}`;
+        if (receipt.displayLabel) {
+          card.querySelector("p").textContent += ` · ${receipt.displayLabel}`;
+        }
+        card.querySelector(".muted").textContent = receipt.status === "failure"
+          ? `${receipt.recoveryCopy ?? ""}${receipt.recoveryDetail ? ` · 错误详情：${receipt.recoveryDetail}` : ""}`
+          : "";
+        node.append(card);
+      }
+    }
+
+    function renderDesktopTrustedDevices(devices = [], revocations = []) {
+      const node = document.querySelector("[data-desktop-trusted-devices]");
+      if (!node) return;
+      node.replaceChildren();
+      if (!devices.length && !revocations.length) {
+        const empty = document.createElement("article");
+        empty.className = "reminder-card";
+        empty.dataset.source = "due";
+        empty.innerHTML = "<strong>暂无可信设备</strong><p>首次连接需要面对面扫码并确认 6 位校验码。</p>";
+        node.append(empty);
+        return;
+      }
+      for (const device of devices) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = device.status === "needs-repairing" ? "due" : "upcoming";
+        const lastSync = device.lastSyncAt ? new Date(device.lastSyncAt).toLocaleString("zh-CN", { hour12: false }) : "尚未同步";
+        const lastSeen = device.lastSeenAt ? new Date(device.lastSeenAt).toLocaleString("zh-CN", { hour12: false }) : "等待近场发现";
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="badge ${device.status === "needs-repairing" ? "warn" : "sync"}"></span>
+          </div>
+          <p></p>
+          <p class="muted"></p>
+          <div class="muted" data-device-detail hidden></div>
+          <div class="reminder-actions">
+            <button class="secondary" type="button" data-device-detail-action="toggle">查看详情</button>
+            <button class="secondary" type="button" data-sync-recovery-action="repair">重新配对</button>
+            <button class="secondary" type="button" data-trusted-device-action="revoke" data-device-id="${escapeHtml(device.id)}" data-device-name="${escapeHtml(device.name)}">撤销信任</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = `${device.name} · ${device.kind}`;
+        card.querySelector(".badge").textContent = device.statusLabel;
+        card.querySelector("p").textContent = `指纹 ${device.publicKeyFingerprint} · 上次同步：${lastSync} · 最近发现：${lastSeen}`;
+        card.querySelector(".muted").textContent = device.reason;
+        card.querySelector("[data-device-detail]").textContent = `设备 ID：${device.id} · 首次信任：${device.trustedAt ? new Date(device.trustedAt).toLocaleString("zh-CN", { hour12: false }) : "未知"} · 操作：${device.actionLabel} · 恢复：需要时可重新面对面配对`;
+        node.append(card);
+      }
+      for (const event of revocations) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = "history";
+        const revokedAt = event.revokedAt ? new Date(event.revokedAt).toLocaleString("zh-CN", { hour12: false }) : "未知时间";
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="badge warn">已撤销</span>
+          </div>
+          <p></p>
+          <p class="muted"></p>
+          <div class="muted" data-device-detail hidden></div>
+          <div class="reminder-actions">
+            <button class="secondary" type="button" data-device-detail-action="toggle">查看详情</button>
+            <button class="secondary" type="button" data-sync-recovery-action="repair">重新配对</button>
+          </div>
+        `;
+        card.querySelector("strong").textContent = `${event.deviceName} · ${event.deviceKind}`;
+        card.querySelector("p").textContent = `${revokedAt} · 指纹 ${event.publicKeyFingerprint}`;
+        card.querySelector(".muted").textContent = "该设备需要重新面对面配对后才能再次同步。";
+        card.querySelector("[data-device-detail]").textContent = `设备 ID：${event.deviceId} · 撤销确认：${event.confirmation ?? "已确认"} · 恢复：重新面对面扫码并确认 6 位校验码`;
+        node.append(card);
+      }
+    }
+
+    function renderNearFieldTransportPanel(discovery) {
+      if (!nearFieldCandidates) return;
+      let panel = document.querySelector("[data-transport-panel]");
+      if (!panel) {
+        panel = document.createElement("div");
+        panel.className = "reminder-list";
+        panel.dataset.transportPanel = "true";
+        nearFieldCandidates.before(panel);
+      }
+      const channels = discovery?.transportPlan?.channels ?? discovery?.channels ?? [];
+      const rows = channels.length ? channels : [
+        { id: "local-network", label: "局域网", status: "available" },
+        { id: "bluetooth", label: "蓝牙", status: "planned" },
+        { id: "hotspot", label: "面对面热点", status: "planned" }
+      ];
+      panel.replaceChildren();
+      for (const channel of rows) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = channel.status === "available" ? "upcoming" : "due";
+        const isBluetooth = channel.id === "bluetooth";
+        const buttonLabel = channel.id === "local-network" ? "扫描设备" : isBluetooth ? "查看离线包" : "查看步骤";
+        const statusLabel = channel.status === "available" ? "可用" : channel.status === "planned" ? "已规划" : channel.status;
+        const note = isBluetooth
+          ? "蓝牙通道使用本地离线加密同步包信封；首次仍需二维码和 6 位码确认信任。"
+          : channel.id === "local-network"
+            ? "仅在两台设备面对面处于同一局域网/热点时通讯，同步前仍需确认摘要。"
+            : "用于无路由器场景，由一台设备开热点后再面对面配对。";
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="badge ${channel.status === "available" ? "sync" : "warn"}">${statusLabel}</span>
+          </div>
+          <span class="muted"></span>
+          <button class="sync-action" type="button" data-transport-action="${channel.id}">
+            <span>${buttonLabel}</span><span>⇢</span>
+          </button>
+        `;
+        card.querySelector("strong").textContent = channel.label ?? channel.id;
+        card.querySelector(".muted").textContent = note;
+        panel.append(card);
+      }
+    }
+
+    function renderNearFieldFlow(stage = "idle", details = {}) {
+      if (!nearFieldCandidates) return;
+      let panel = document.querySelector("[data-near-field-flow]");
+      if (!panel) {
+        panel = document.createElement("article");
+        panel.className = "reminder-card";
+        panel.dataset.nearFieldFlow = "true";
+        nearFieldCandidates.before(panel);
+      }
+      const stages = [
+        ["idle", "准备"],
+        ["scanning", "扫描"],
+        ["pairing", "校验"],
+        ["trusted", "信任"],
+        ["preview", "摘要"],
+        ["exchange", "交换"],
+        ["done", "完成"]
+      ];
+      const indexByStage = Object.fromEntries(stages.map(([id], index) => [id, index]));
+      const activeIndex = indexByStage[stage] ?? 0;
+      const title = details.title ?? "近场同步流程";
+      const copy = details.copy ?? "只有面对面发现设备并确认信任后，才会交换本地加密同步包。";
+      panel.dataset.syncFlowStage = stage;
+      panel.innerHTML = `
+        <div class="reminder-card-head">
+          <strong></strong>
+          <span class="badge sync">${stages[activeIndex]?.[1] ?? "准备"}</span>
+        </div>
+        <span class="muted"></span>
+        <div class="sync-review-list" data-sync-flow-steps></div>
+      `;
+      panel.querySelector("strong").textContent = title;
+      panel.querySelector(".muted").textContent = copy;
+      const steps = panel.querySelector("[data-sync-flow-steps]");
+      for (const [id, label] of stages) {
+        const item = document.createElement("span");
+        item.className = "badge";
+        item.dataset.syncFlowStep = id;
+        item.textContent = `${indexByStage[id] <= activeIndex ? "✓ " : ""}${label}`;
+        steps.append(item);
+      }
+    }
+
+    function renderPairingPreview(sync) {
+      const qr = document.getElementById("pairingQr");
+      const qrSize = Number.isInteger(sync.qrSize) && sync.qrSize > 0 ? sync.qrSize : 7;
+      const cells = Array.isArray(sync.qrCells) && sync.qrCells.length === qrSize * qrSize
+        ? sync.qrCells
+        : Array.from({ length: qrSize * qrSize }, (_, index) => index % 3 !== 0);
+      if (sync.qrSvg && sync.qrFormat === "loginto-pairing-qr-v1") {
+        qr.style.display = "block";
+        qr.style.gridTemplateColumns = "";
+        qr.innerHTML = sync.qrSvg;
+      } else {
+        qr.style.display = "grid";
+        qr.style.gridTemplateColumns = `repeat(${qrSize}, 1fr)`;
+        qr.innerHTML = cells.map((enabled) => `<span class="${enabled ? "" : "off"}"></span>`).join("");
+      }
+      document.getElementById("pairingTitle").textContent = "面对面配对";
+      document.getElementById("pairingCode").textContent = `6 位校验码：${sync.sixDigitCode}`;
+      currentPairingCode = sync.sixDigitCode;
+      currentPairingPayloadText = sync.qrPayloadText ?? "";
+      const pairingPayloadText = document.getElementById("pairingPayloadText");
+      if (pairingPayloadText) {
+        pairingPayloadText.value = currentPairingPayloadText;
+      }
+      const expiresAt = sync.expiresAt ? new Date(sync.expiresAt).toLocaleTimeString("zh-CN", { hour12: false }) : "5 分钟后";
+      const trustedCount = Number.isFinite(sync.trustedDevices) ? ` · 可信设备：${sync.trustedDevices}` : "";
+      document.getElementById("pairingExpiry").textContent = `本机端点：${sync.localEndpoint || "待生成"} · 过期：${expiresAt}${trustedCount}`;
+      document.getElementById("syncBtnLabel").textContent = sync.phoneStatus === "waiting-scan" ? "刷新配对码" : "发送同步包";
+    }
+
+    function renderNearFieldCandidates(discovery) {
+      if (!nearFieldCandidates) return;
+      currentNearFieldDiscovery = discovery;
+      if (!document.querySelector("[data-near-field-flow]")) {
+        renderNearFieldFlow("idle");
+      }
+      renderNearFieldTransportPanel(discovery);
+      if (discoveryProbes) {
+        const probes = discovery?.probes ?? [];
+        const ok = probes.filter((probe) => probe.reachable).length;
+        discoveryProbes.textContent = probes.length
+          ? `近场探测：成功 ${ok} · 失败 ${probes.length - ok}`
+          : "近场探测：等待扫描";
+      }
+      nearFieldCandidates.replaceChildren();
+      const candidates = discovery?.candidates ?? [];
+      for (const candidate of candidates.length ? candidates : [undefined]) {
+        const card = document.createElement("article");
+        card.className = "reminder-card";
+        card.dataset.source = candidate?.trustStatus === "trusted" ? "upcoming" : "due";
+        if (!candidate) {
+          card.innerHTML = `<strong>暂无近场候选</strong><span class="muted">请让手机/平板与桌面处于同一局域网或面对面热点。</span>`;
+          nearFieldCandidates.append(card);
+          continue;
+        }
+        const summary = candidate.changeSummary
+          ? `变更 ${candidate.changeSummary.changeCount} · 附件 ${candidate.changeSummary.attachmentCount}`
+          : "等待对方在线摘要";
+        const action = candidate.requiresRepairing ? "需再次配对" : candidate.requiresPairing ? "需面对面配对" : "可同步";
+        const buttonLabel = candidate.requiresRepairing ? "重新配对" : candidate.requiresPairing ? "配对" : "同步确认";
+        const reason = candidate.requiresRepairing
+          ? "原因：此设备的公钥与可信列表不一致。下一步：面对面重新确认 6 位码。"
+          : candidate.requiresPairing
+            ? "原因：这是首次连接的设备。下一步：面对面扫码并确认 6 位码。"
+            : "已信任：同步前仍会显示设备名、时间和变更摘要。";
+        card.innerHTML = `
+          <div class="reminder-card-head">
+            <strong></strong>
+            <span class="badge ${candidate.trustStatus === "trusted" ? "sync" : "warn"}">${action}</span>
+          </div>
+          <span class="muted"></span>
+          <span class="muted" data-candidate-reason></span>
+          <button class="sync-action" type="button" data-candidate-action data-candidate-id="${candidate.id}">
+            <span>${buttonLabel}</span><span>⇢</span>
+          </button>
+        `;
+        card.querySelector("strong").textContent = candidate.device.name;
+        card.querySelector(".muted").textContent = `${candidate.transport} · ${candidate.endpoint} · ${summary}`;
+        card.querySelector("[data-candidate-reason]").textContent = reason;
+        nearFieldCandidates.append(card);
+      }
+    }
+
+    async function refreshPairingPreview() {
+      renderNearFieldFlow("pairing", {
+        title: "面对面配对",
+        copy: "正在生成二维码和 6 位校验码，请让另一台设备当面确认。"
+      });
+      const response = await fetch("/api/pairing/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
+      if (!response.ok) {
+        throw new Error(`pairing start ${response.status}`);
+      }
+      const pairing = await response.json();
+      renderPairingPreview({
+        ...pairing,
+        phoneStatus: "waiting-scan"
+      });
+      showToast(`面对面配对已打开，验证码 ${pairing.sixDigitCode}`);
+      return pairing;
+    }
+
+    async function confirmPairingPreview() {
+      renderNearFieldFlow("pairing", {
+        title: "等待对方扫码",
+        copy: "请在手机或平板上扫描二维码，并当面核对 6 位校验码。"
+      });
+      const pairing = await refreshPairingPreview();
+      showToast(`等待手机或平板扫码，验证码 ${pairing.sixDigitCode}`);
+      return pairing;
+    }
+
+    async function requestFieldReveal({ fieldLabel, action = "reveal", secondUnlock = true } = {}) {
+      const response = await fetch("/api/fields/reveal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recordId: currentSelectedRecordId,
+          fieldLabel,
+          action,
+          secondUnlock
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`field reveal ${response.status}`);
+      }
+      const result = await response.json();
+      if (!result.ok) {
+        const reason = result.denied?.[0]?.reason || "reveal-denied";
+        showToast(reason === "second-unlock-required" ? "需要二次解锁后查看关键字段" : "保险箱已锁定");
+        if (result.security) {
+          renderSecurityPanel(result.security, Object.values(records));
+        }
+        return result;
+      }
+      for (const field of result.fields) {
+        const row = fieldList.querySelector(`[data-field-label="${cssEscape(field.label)}"]`);
+        const valueNode = row?.querySelector("[data-secret]");
+        if (valueNode) {
+          valueNode.textContent = field.value;
+        }
+      }
+      if (action === "copy") {
+        const copiedValue = result.fields[0]?.value;
+        await copyTextIfAvailable(copiedValue);
+        const clearAt = result.fields[0]?.copyClearAt ? new Date(result.fields[0].copyClearAt).toLocaleTimeString("zh-CN", { hour12: false }) : "30 秒后";
+        showToast(`已复制，计划 ${clearAt} 自动清空剪贴板`);
+      } else {
+        showToast("二次解锁通过，敏感字段临时显示");
+      }
+      if (result.security) {
+        renderSecurityPanel(result.security, Object.values(records));
+      }
+      return result;
+    }
+
+    async function copyTextIfAvailable(value) {
+      if (!value || !navigator.clipboard?.writeText) {
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch {
+        // Browser preview may block clipboard writes without a user gesture.
+      }
+    }
+
+    function createRecordPayloadFromForm(formData) {
+      const type = String(formData.get("type") || "account");
+      const title = String(formData.get("title") || "").trim();
+      const primary = String(formData.get("primary") || "").trim();
+      const meta = String(formData.get("meta") || "").trim();
+      const notes = String(formData.get("notes") || "").trim();
+      const dueDate = String(formData.get("due") || "").trim();
+      if (!title) {
+        throw new Error("title required");
+      }
+      const valuesByType = {
+        account: {
+          username: primary || title,
+          password: "请在详情中二次解锁后补充",
+          url: meta,
+          notes
+        },
+        membership: {
+          member_name: title,
+          member_id: primary,
+          expires_at: dueDate ? `${dueDate}T00:00:00.000Z` : "2027-01-31T00:00:00.000Z",
+          service_phone: meta,
+          notes
+        },
+        bank_card: {
+          cardholder: title,
+          card_number: primary,
+          bank_name: meta,
+          statement_day: dueDate ? dueDate.slice(-2) : "",
+          notes
+        },
+        identity_document: {
+          document_type: title,
+          document_number: primary,
+          expires_at: dueDate ? `${dueDate}T00:00:00.000Z` : "2028-01-31T00:00:00.000Z",
+          issued_by: meta,
+          notes
+        }
+      };
+      const reminderDrafts = dueDate ? [{
+        dueAt: `${dueDate}T09:00:00.000Z`,
+        message: `${title} 到期/账单提醒`,
+        daysBefore: type === "bank_card" ? 0 : 7
+      }] : [];
+      return {
+        type,
+        title,
+        values: valuesByType[type] || valuesByType.account,
+        reminderDrafts
+      };
+    }
+
+    function reverseUiRecordType(type) {
+      return {
+        account: "account",
+        bank: "bank_card",
+        member: "membership",
+        id: "identity_document"
+      }[type] || "account";
+    }
+
+    function findRecordFieldValue(record, label) {
+      const field = record?.fields?.find((item) => item.label === label);
+      return field?.secret ? "" : field?.value || "";
+    }
+
+    function cssEscape(value) {
+      if (window.CSS?.escape) {
+        return CSS.escape(value);
+      }
+      return String(value).replaceAll('"', '\\"');
+    }
+
+    recordList.addEventListener("click", (event) => {
+      const row = event.target.closest("[data-record]");
+      if (!row) return;
+      document.querySelectorAll("[data-record]").forEach((item) => item.classList.remove("active"));
+      row.classList.add("active");
+      renderRecord(row.dataset.record);
+    });
+
+    document.querySelectorAll("[data-toast]").forEach((item) => {
+      item.addEventListener("click", () => showToast(item.dataset.toast));
+    });
+
+    fieldList.addEventListener("click", async (event) => {
+      const attachmentButton = event.target.closest("[data-attachment-action='remove']");
+      if (attachmentButton) {
+        const row = attachmentButton.closest("[data-attachment-id]");
+        const attachmentId = row?.dataset.attachmentId;
+        if (!currentSelectedRecordId || !attachmentId) return;
+        try {
+          const response = await fetch("/api/attachments", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              recordId: currentSelectedRecordId,
+              attachmentId
+            })
+          });
+          if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+          const result = await response.json();
+          applyAppState(result.appState);
+          showToast("已移除附件引用，原加密文件仍保留");
+        } catch {
+          showToast("附件移除失败，请保持保险箱解锁");
+        }
+        return;
+      }
+      const button = event.target.closest("[data-field-action]");
+      if (!button) return;
+      const row = button.closest("[data-field-label]");
+      const fieldLabel = row?.dataset.fieldLabel;
+      const action = button.dataset.fieldAction;
+      try {
+        await requestFieldReveal({ fieldLabel, action, secondUnlock: true });
+      } catch {
+        showToast("敏感字段操作失败，请保持保险箱解锁");
+      }
+    });
+
+    document.getElementById("revealBtn").addEventListener("click", async () => {
+      try {
+        await requestFieldReveal({ action: "reveal", secondUnlock: true });
+      } catch {
+        showToast("二次解锁失败，请稍后重试");
+      }
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const firstSecret = fieldList.querySelector("[data-secret]")?.closest("[data-field-label]");
+      try {
+        await requestFieldReveal({ fieldLabel: firstSecret?.dataset.fieldLabel, action: "copy", secondUnlock: true });
+      } catch {
+        showToast("复制失败，请保持保险箱解锁");
+      }
+    });
+
+    document.getElementById("copyPairingPayloadBtn")?.addEventListener("click", async () => {
+      const value = currentPairingPayloadText || document.getElementById("pairingPayloadText")?.value;
+      await copyTextIfAvailable(value);
+      showToast("QR payload 已准备复制，可粘贴到手机或平板。");
+    });
+
+    document.querySelector("[data-action='security-second-unlock']").addEventListener("click", async () => {
+      try {
+        await requestFieldReveal({ action: "reveal", secondUnlock: true });
+      } catch {
+        showToast("二次解锁失败，请稍后重试");
+      }
+    });
+
+    document.querySelectorAll("[data-desktop-connection-state], [data-desktop-sync-center], [data-desktop-sync-audit-log], [data-desktop-trusted-devices]").forEach((node) => node.addEventListener("click", async (event) => {
+      const detailButton = event.target.closest("[data-device-detail-action]");
+      if (detailButton?.dataset.deviceDetailAction === "toggle") {
+        const card = detailButton.closest(".reminder-card");
+        const detail = card?.querySelector("[data-device-detail]");
+        if (detail) {
+          detail.hidden = !detail.hidden;
+          detailButton.textContent = detail.hidden ? "查看详情" : "收起详情";
+        }
+        return;
+      }
+      const trustedButton = event.target.closest("[data-trusted-device-action]");
+      if (trustedButton?.dataset.trustedDeviceAction === "revoke") {
+        if (!confirm(`撤销「${trustedButton.dataset.deviceName}」的信任？撤销后该设备必须重新面对面配对才能同步。`)) {
+          return;
+        }
+        try {
+          const response = await fetch("/api/trusted-devices", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              deviceId: trustedButton.dataset.deviceId,
+              confirmDeviceName: trustedButton.dataset.deviceName
+            })
+          });
+          if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+          const result = await response.json();
+          applyAppState(result.appState);
+          showToast("已撤销可信设备");
+        } catch (error) {
+          showToast("撤销可信设备失败");
+        }
+        return;
+      }
+      const button = event.target.closest("[data-sync-recovery-action]");
+      const centerButton = event.target.closest("[data-desktop-sync-center-action]");
+      if (centerButton?.dataset.desktopSyncCenterAction === "review-sync") {
+        const confirmation = findDesktopPendingSyncConfirmation(centerButton.dataset.syncConfirmationId);
+        if (confirmation) {
+          renderSyncPreview(confirmation);
+          await openSyncReviewDialog(confirmation);
+          showToast(confirmation.requestRole === "receiver" ? "已处理收到的同步请求" : "已查看待确认同步摘要");
+          return;
+        }
+        const card = centerButton.closest(".reminder-card");
+        const peerKind = card?.dataset.peerKind === "tablet" ? "tablet" : "phone";
+        document.querySelector(`[data-sync-target="${peerKind}"]`)?.click();
+        showToast("正在生成同步摘要");
+        return;
+      }
+      const action = button?.dataset.syncRecoveryAction === "repair" ? "repair-pairing" : button?.dataset.syncRecoveryAction ?? centerButton?.dataset.desktopSyncCenterAction;
+      if (!action) return;
+      const retryRequestText = button?.dataset.syncRetryRequest ?? centerButton?.dataset.syncRetryRequest;
+      if (action === "retry-sync") {
+        const retryRequest = retryRequestText ? JSON.parse(retryRequestText) : undefined;
+        renderNearFieldFlow("preview", {
+          title: `重试同步：${retryRequest?.targetDeviceName ?? "目标设备"}`,
+          copy: "将重新生成同步摘要，确认后才会交换加密同步包。"
+        });
+        await runDesktopCandidateSync(retryRequest);
+        return;
+      }
+      if (action === "rescan") {
+        document.getElementById("discoveryScanBtn")?.click();
+        showToast("正在重新扫描近场设备");
+        return;
+      }
+      renderNearFieldFlow("pairing", {
+        title: "重新配对",
+        copy: "请面对面扫描二维码并确认 6 位校验码，恢复可信设备关系后再同步。"
+      });
+      await refreshPairingPreview();
+      showToast("已生成重新配对二维码");
+    }));
+
+    document.getElementById("editBtn").addEventListener("click", () => {
+      const record = records[currentSelectedRecordId];
+      if (!record) {
+        showToast("请选择一条记录");
+        return;
+      }
+      recordFormMode = "edit";
+      editingRecordId = record.recordId || record.id;
+      recordModalTitle.textContent = "编辑本地记录";
+      recordForm.reset();
+      document.getElementById("recordTypeInput").value = reverseUiRecordType(record.type);
+      document.getElementById("recordTitleInput").value = record.title;
+      document.getElementById("recordNotesInput").value = findRecordFieldValue(record, "备注") || "";
+      recordModal.classList.add("show");
+      document.getElementById("recordTitleInput").focus();
+    });
+
+    document.getElementById("deleteBtn").addEventListener("click", async () => {
+      const record = records[currentSelectedRecordId];
+      if (!record) {
+        showToast("请选择一条记录");
+        return;
+      }
+      if (!confirm(`删除「${record.title}」？此操作会从本机保险箱移除这条记录。`)) {
+        return;
+      }
+      try {
+        const response = await fetch("/api/records", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ recordId: record.recordId || record.id })
+        });
+        if (!response.ok) {
+          throw new Error(`delete record ${response.status}`);
+        }
+        const nextState = await response.json();
+        applyAppState(nextState);
+        showToast("已从本机保险箱删除");
+      } catch {
+        showToast("删除失败，请保持保险箱解锁");
+      }
+    });
+
+    document.getElementById("addBtn").addEventListener("click", async () => {
+      try {
+        const response = await fetch("/api/records", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        });
+        if (!response.ok) {
+          throw new Error(`create record ${response.status}`);
+        }
+        const nextState = await response.json();
+        applyAppState(nextState);
+        showToast("已新增一条本地加密会员记录");
+      } catch {
+        showToast("新增记录：账号、银行卡、会员、证件、自定义");
+      }
+    });
+
+    document.getElementById("addBtn").addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      recordFormMode = "create";
+      editingRecordId = undefined;
+      recordModalTitle.textContent = "新增本地记录";
+      recordForm.reset();
+      document.getElementById("recordTypeInput").value = "account";
+      recordModal.classList.add("show");
+      document.getElementById("recordTitleInput").focus();
+    }, true);
+
+    document.getElementById("closeRecordModal").addEventListener("click", () => {
+      recordModal.classList.remove("show");
+    });
+
+    document.getElementById("cancelRecordModal").addEventListener("click", () => {
+      recordModal.classList.remove("show");
+    });
+
+    recordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = createRecordPayloadFromForm(new FormData(recordForm));
+      try {
+        const response = await fetch("/api/records", {
+          method: recordFormMode === "edit" ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(recordFormMode === "edit"
+            ? {
+                recordId: editingRecordId,
+                title: payload.title,
+                notes: payload.values.notes ?? ""
+              }
+            : payload)
+        });
+        if (!response.ok) {
+          throw new Error(`save record ${response.status}`);
+        }
+        const nextState = await response.json();
+        applyAppState(nextState);
+        const created = Object.values(records).find((record) => {
+          return record.title === payload.title || record.recordId === editingRecordId || record.id === editingRecordId;
+        });
+        if (created) {
+          renderRecord(created.id);
+          document.querySelectorAll("[data-record]").forEach((row) => {
+            row.classList.toggle("active", row.dataset.record === created.id);
+          });
+        }
+        recordModal.classList.remove("show");
+        showToast(recordFormMode === "edit" ? "已更新本机记录" : "已保存到本机加密保险箱");
+      } catch {
+        showToast(recordFormMode === "edit" ? "编辑失败，请检查标题和备注" : "新增记录失败，请检查标题和字段");
+      }
+    });
+
+    document.getElementById("syncBtn").addEventListener("click", async () => {
+      try {
+        await refreshPairingPreview();
+      } catch {
+        showToast("配对窗口打开失败，请保持保险箱解锁");
+      }
+    });
+
+    document.getElementById("confirmPairingBtn").addEventListener("click", async () => {
+      try {
+        await confirmPairingPreview();
+      } catch {
+        showToast("配对窗口打开失败，请重新刷新配对码");
+      }
+    });
+
+    document.getElementById("discoveryScanBtn").addEventListener("click", async () => {
+      try {
+        renderNearFieldFlow("scanning", {
+          title: "扫描近场设备",
+          copy: "正在查找同一局域网或面对面热点中的手机和平板。"
+        });
+        const response = await fetch("/api/discovery/scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            useLanHostScan: true,
+            ports: [4177, 4178],
+            neighborRadius: 1,
+            maxHosts: 8,
+            timeoutMs: 750
+          })
+        });
+        if (!response.ok) {
+          throw new Error(`discovery scan ${response.status}`);
+        }
+        const result = await response.json();
+        renderNearFieldCandidates(result.discovery);
+        renderNearFieldFlow(result.discovery.candidates.length ? "scanning" : "idle", {
+          title: result.discovery.candidates.length ? "已发现近场候选" : "未发现设备",
+          copy: result.discovery.candidates.length
+            ? "请选择设备继续配对或进入同步摘要确认。"
+            : "请确认另一台设备已打开，并处于同一局域网或面对面热点。"
+        });
+        showToast(`发现 ${result.discovery.candidates.length} 个近场候选`);
+      } catch {
+        renderNearFieldFlow("idle", {
+          title: "扫描失败",
+          copy: "未能连接近场设备，请确认端口和本地网络状态。"
+        });
+        showToast("近场扫描失败，请确认设备在同一网络");
+      }
+    });
+
+    nearFieldCandidates?.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-candidate-action]");
+      if (!button) return;
+      const candidate = currentNearFieldDiscovery?.candidates?.find((item) => item.id === button.dataset.candidateId);
+      if (!candidate) {
+        showToast("请先重新扫描该设备");
+        return;
+      }
+      try {
+        const response = await fetch("/api/discovery/resolve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ candidate })
+        });
+        if (!response.ok) {
+          throw new Error(`discovery resolve ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.action === "pair" || result.action === "repair-pairing") {
+          renderNearFieldFlow("pairing", {
+            title: result.action === "repair-pairing" ? "需要重新配对" : "需要面对面配对",
+            copy: "请扫描二维码并确认 6 位校验码，确认后才会信任该设备。"
+          });
+          renderPairingPreview({
+            ...result.pairing,
+            phoneStatus: result.action === "repair-pairing" ? "repairing-required" : "waiting-scan"
+          });
+          showToast(result.message ?? "请面对面完成配对确认");
+          return;
+        }
+        if (result.action === "sync-preview") {
+          await runDesktopCandidateSync(result.nextRequest);
+          return;
+        }
+        showToast(result.message ?? "请重新扫描近场设备");
+      } catch {
+        showToast("处理近场设备失败");
+      }
+    });
+
+    document.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-transport-action]");
+      if (!button) return;
+      const action = button.dataset.transportAction;
+      if (action === "local-network") {
+        document.getElementById("discoveryScanBtn")?.click();
+        return;
+      }
+      if (action === "bluetooth") {
+        showToast("蓝牙离线包信封已就绪：仅可信设备可交换加密同步包");
+        return;
+      }
+      showToast("面对面热点流程已列入近场通道计划");
+    });
+
+    async function runDesktopCandidateSync(nextRequest) {
+      const targetLabel = nextRequest?.targetKind === "tablet" ? "平板" : "手机";
+      renderNearFieldFlow("preview", {
+        title: `准备发送到${targetLabel}`,
+        copy: "正在生成本次同步摘要；确认前不会交换同步包。"
+      });
+      const previewResponse = await fetch("/api/sync/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nextRequest)
+      });
+      if (!previewResponse.ok) {
+        throw new Error(`sync preview ${previewResponse.status}`);
+      }
+      const preview = await previewResponse.json();
+      renderSyncPreview(preview.confirmation);
+      if (!await openSyncReviewDialog(preview.confirmation)) {
+        renderNearFieldFlow("idle", {
+          title: "已取消同步",
+          copy: "本次没有交换同步包，也不会写入对方设备。"
+        });
+        showToast(`已取消发送到${targetLabel}`);
+        return;
+      }
+      const decisions = await collectConflictDecisions(preview.confirmation);
+      if (decisions === null) {
+        renderNearFieldFlow("idle", {
+          title: "已取消冲突处理",
+          copy: "冲突未确认，因此没有继续交换同步包。"
+        });
+        showToast(`已取消发送到${targetLabel}`);
+        return;
+      }
+      renderNearFieldFlow("exchange", {
+        title: `正在交换到${targetLabel}`,
+        copy: "只向可信设备发送加密同步包；敏感字段不会出现在摘要里。"
+      });
+      const response = await fetch("/api/sync/push", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...nextRequest,
+          confirmationId: preview.confirmation.id,
+          decisions
+        })
+      });
+      if (!response.ok) {
+        throw new Error(`sync push ${response.status}`);
+      }
+      const result = await response.json();
+      renderSyncReceipt(result.appState?.sync?.lastReceiptSummary ?? {
+        peerName: targetLabel,
+        sentCount: result.sentChanges ?? 0,
+        receivedCount: result.targetReceipt?.sentCount ?? 0,
+        conflictCount: result.targetReceipt?.conflictCount ?? result.targetReceipt?.conflicts ?? 0
+      });
+      renderNearFieldFlow("done", {
+        title: `已完成到${targetLabel}`,
+        copy: `发送 ${result.sentChanges} 条变更，冲突 ${result.targetReceipt?.conflictCount ?? result.targetReceipt?.conflicts ?? 0} 条。`
+      });
+      showToast(`已发送到${targetLabel}：${result.sentChanges} 条变更，冲突 ${result.targetReceipt?.conflictCount ?? result.targetReceipt?.conflicts ?? 0} 条`);
+    }
+
+    document.querySelector("[data-action='backup-export']").addEventListener("click", async () => {
+      try {
+        if (!backupConfirm.checked) {
+          backupStatus.textContent = "待确认";
+          backupCopy.textContent = "请先确认本次会导出本机加密备份包，再继续。";
+          showToast("导出备份前需要确认");
+          return;
+        }
+        const response = await fetch("/api/backup/export", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({})
+        });
+        if (!response.ok) {
+          throw new Error(`backup export ${response.status}`);
+        }
+        const result = await response.json();
+        lastBackupPackageJson = result.packageJson;
+        backupStatus.textContent = "已导出";
+        backupCopy.textContent = `备份 ${result.summary.records} 条记录 · ${result.summary.attachments} 个附件 · ${result.summary.bytes} bytes · ${result.savedPath}`;
+        backupConfirm.checked = false;
+        showToast("已导出本机加密备份包");
+      } catch {
+        backupStatus.textContent = "失败";
+        backupCopy.textContent = "备份导出失败，请确认本地 .tmp 可写。";
+        showToast("备份导出失败");
+      }
+    });
+
+    document.querySelector("[data-action='backup-verify']").addEventListener("click", async () => {
+      try {
+        const response = await fetch("/api/backup/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(lastBackupPackageJson ? { packageJson: lastBackupPackageJson } : {})
+        });
+        if (!response.ok) {
+          throw new Error(`backup verify ${response.status}`);
+        }
+        const result = await response.json();
+        backupStatus.textContent = "已验证";
+        backupCopy.textContent = `可恢复 ${result.summary.records} 条记录 · ${result.summary.attachments ?? 0} 个附件 · ${result.summary.dueReminders} 条到期提醒 · 验证路径：${result.summary.vaultPath}`;
+        showToast("备份已验证可恢复");
+      } catch {
+        backupStatus.textContent = "验证失败";
+        backupCopy.textContent = "请先导出备份，或确认备份包密码与当前保险箱一致。";
+        showToast("备份验证失败");
+      }
+    });
+
+    document.querySelectorAll("[data-sync-target]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const targetKind = button.dataset.syncTarget;
+        const targetLabel = targetKind === "tablet" ? "平板" : "手机";
+        try {
+          const previewResponse = await fetch("/api/sync/preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ targetKind })
+          });
+          if (!previewResponse.ok) {
+            throw new Error(`sync preview ${previewResponse.status}`);
+          }
+          const preview = await previewResponse.json();
+          renderSyncPreview(preview.confirmation);
+          const recordLines = [
+            ...(preview.confirmation.recordsToSend ?? []).slice(0, 5).map((item) => `发送：${item.record.title}`),
+            ...(preview.confirmation.recordsToReceive ?? []).slice(0, 5).map((item) => `接收：${item.record.title}`),
+            ...(preview.confirmation.conflicts ?? []).slice(0, 5).map((item) => `冲突：${item.title}`)
+          ];
+          const text = `${preview.confirmation.peerDevice.name}\n请求时间：${new Date(preview.confirmation.requestedAt).toLocaleString("zh-CN", { hour12: false })}\n连接方式：${preview.confirmation.transport}\n将发送：${preview.confirmation.preview.sendChanges} 条\n将接收：${preview.confirmation.preview.receiveChanges} 条\n冲突：${preview.confirmation.preview.conflicts} 条\n${recordLines.join("\n")}\n\n确认后才会交换同步包。`;
+          if (!await openSyncReviewDialog(preview.confirmation)) {
+            showToast(`已取消发送到${targetLabel}`);
+            return;
+          }
+          const decisions = await collectConflictDecisions(preview.confirmation);
+          if (decisions === null) {
+            showToast(`已取消发送到${targetLabel}`);
+            return;
+          }
+          const response = await fetch("/api/sync/push", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              targetKind,
+              confirmationId: preview.confirmation.id,
+              decisions
+            })
+          });
+          if (!response.ok) {
+            throw new Error(`sync push ${response.status}`);
+          }
+          const result = await response.json();
+          renderSyncReceipt(result.appState?.sync?.lastReceiptSummary ?? {
+            peerName: targetLabel,
+            sentCount: result.sentChanges ?? 0,
+            receivedCount: result.targetReceipt?.sentCount ?? 0,
+            conflictCount: result.targetReceipt?.conflictCount ?? result.targetReceipt?.conflicts ?? 0
+          });
+          showToast(`已发送到${targetLabel}：${result.sentChanges} 条变更，冲突 ${result.targetReceipt?.conflictCount ?? result.targetReceipt?.conflicts ?? 0} 条`);
+        } catch {
+          showToast(`发送到${targetLabel}失败，请确认对应端正在运行`);
+        }
+      });
+    });
+
+    function collectConflictDecisionsLegacy(confirmation) {
+      const conflicts = confirmation?.conflicts ?? [];
+      const decisions = [];
+      for (const conflict of conflicts) {
+        const fieldCopy = (conflict.fields ?? []).map((field) => `${field.key}(${field.sensitivity})`).join("、") || "记录元数据";
+        const answer = "local";
+        void (
+          `冲突：${conflict.title}\n字段：${fieldCopy}\n输入 local 保留本机，remote 使用对方，both 保留两份/手动合并，ignore 忽略传入。`,
+          "local"
+        );
+        const resolution = {
+          local: "use-local",
+          remote: "use-remote",
+          both: "keep-both",
+          ignore: "ignore-remote"
+        }[(answer || "local").trim().toLowerCase()] || "use-local";
+        decisions.push({
+          conflictId: conflict.id,
+          resolution
+        });
+      }
+      return decisions;
+    }
+
+    async function collectConflictDecisions(confirmation) {
+      const conflicts = confirmation?.conflicts ?? [];
+      if (conflicts.length === 0) {
+        return [];
+      }
+      return openConflictDialog(conflicts);
+    }
+
+    function openConflictDialog(conflicts) {
+      conflictList.replaceChildren();
+      const decisionSummary = document.querySelector("[data-conflict-decision-summary]");
+      const optionLabels = {
+        "use-local": "保留本机",
+        "use-remote": "使用对方",
+        "keep-both": "保留两份",
+        "manual-merge": "手动合并",
+        "ignore-remote": "忽略传入"
+      };
+      conflicts.forEach((conflict, index) => {
+        const fields = (conflict.fields ?? []).map(describeConflictField).join("、") || "记录元数据";
+        const card = document.createElement("section");
+        card.className = "conflict-card";
+        card.dataset.conflictId = conflict.id;
+
+        const title = document.createElement("strong");
+        title.textContent = conflict.title;
+        const decisionState = document.createElement("span");
+        decisionState.className = "muted";
+        decisionState.setAttribute("data-conflict-decision-state", "");
+        decisionState.textContent = "当前选择：保留本机";
+        const meta = document.createElement("span");
+        meta.className = "muted";
+        meta.textContent = `冲突字段：${fields}`;
+        const diff = createConflictDiffView(conflict, {
+          localLabel: "本机版本",
+          remoteLabel: "对方版本"
+        });
+        const options = document.createElement("div");
+        options.className = "conflict-options";
+
+        Object.entries(optionLabels).forEach(([value, labelText], optionIndex) => {
+          const label = document.createElement("label");
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = `desktop-conflict-${index}`;
+          input.value = value;
+          input.setAttribute("data-conflict-resolution", value);
+          input.checked = optionIndex === 0;
+          label.append(input, document.createTextNode(labelText));
+          options.append(label);
+        });
+        const optionHelp = document.createElement("span");
+        optionHelp.className = "muted conflict-option-help";
+        optionHelp.setAttribute("data-conflict-option-help", "");
+        optionHelp.textContent = conflictResolutionHelp("use-local");
+        options.addEventListener("change", () => {
+          optionHelp.textContent = conflictResolutionHelp(card.querySelector("input[type='radio']:checked")?.value ?? "use-local");
+          updateConflictDecisionSummary(conflictList, decisionSummary);
+        });
+        const fieldMergeList = document.createElement("div");
+        fieldMergeList.className = "field-merge-list";
+        fieldMergeList.setAttribute("data-manual-merge-fields", "");
+        for (const field of conflict.fields ?? []) {
+          const row = document.createElement("div");
+          row.className = "field-merge-row";
+          row.dataset.fieldKey = field.key;
+          row.dataset.fieldSensitivity = field.sensitivity;
+          const name = `desktop-conflict-${index}-field-${field.key}`;
+          const label = document.createElement("span");
+          label.textContent = describeConflictField(field);
+          row.append(
+            label,
+            createFieldMergeOption(name, "local", "本机", true),
+            createFieldMergeOption(name, "remote", "对方", false)
+          );
+          fieldMergeList.append(row);
+        }
+        fieldMergeList.addEventListener("change", () => updateConflictDecisionSummary(conflictList, decisionSummary));
+
+        card.append(title, decisionState, meta, diff, options, optionHelp, fieldMergeList);
+        conflictList.append(card);
+      });
+      updateConflictDecisionSummary(conflictList, decisionSummary);
+
+      conflictModal.classList.add("show");
+      return new Promise((resolve) => {
+        const cleanup = () => {
+          conflictModal.classList.remove("show");
+          conflictConfirmButton.onclick = null;
+          conflictCancelButtons.forEach((button) => {
+            button.onclick = null;
+          });
+        };
+        conflictConfirmButton.onclick = () => {
+          const decisions = [...conflictList.querySelectorAll("[data-conflict-id]")].map((card) => ({
+            conflictId: card.dataset.conflictId,
+            resolution: card.querySelector("input[type='radio']:checked")?.value ?? "use-local",
+            manualMerge: collectManualMergeFields(card)
+          }));
+          cleanup();
+          resolve(decisions);
+        };
+        conflictCancelButtons.forEach((button) => {
+          button.onclick = () => {
+            cleanup();
+            resolve(null);
+          };
+        });
+      });
+    }
+
+    function openSyncReviewDialog(confirmation) {
+      const preview = confirmation.preview ?? {};
+      const review = confirmation.review ?? {};
+      syncReviewPeer.textContent = review.peerDeviceName ?? confirmation.peerDevice?.name ?? "未知设备";
+      syncReviewTime.textContent = new Date(review.requestedAt ?? confirmation.requestedAt).toLocaleString("zh-CN", { hour12: false });
+      syncReviewExpires.textContent = review.expiresAt ?? confirmation.expiresAt ? new Date(review.expiresAt ?? confirmation.expiresAt).toLocaleString("zh-CN", { hour12: false }) : "5 分钟内";
+      syncReviewTransport.textContent = review.transport ?? confirmation.transport ?? "local-network";
+      syncReviewPeerUrl.textContent = review.peerBaseUrl ?? confirmation.peerBaseUrl ?? "本机近场连接";
+      syncReviewFingerprint.textContent = review.peerKeyFingerprint ?? "待确认";
+      syncReviewPublicNetwork.textContent = review.publicNetworkLogin === false ? "否" : "需要检查";
+      syncReviewSummary.textContent = review.summaryText ?? `发送 ${preview.sendChanges ?? 0} · 接收 ${preview.receiveChanges ?? 0} · 冲突 ${preview.conflicts ?? 0}`;
+      syncReviewTrust.textContent = formatSyncReviewTrust(review);
+      syncReviewRecords.replaceChildren();
+
+      const recordRows = review.recordLines ?? [
+        ...(confirmation.recordsToSend ?? []).slice(0, 6).map((item) => `发送：${item.record.title}`),
+        ...(confirmation.recordsToReceive ?? []).slice(0, 6).map((item) => `接收：${item.record.title}`),
+        ...(confirmation.conflicts ?? []).slice(0, 6).map((item) => `冲突：${item.title}`)
+      ];
+      for (const text of recordRows.length ? recordRows : ["本次没有记录级变更"]) {
+        const item = document.createElement("li");
+        item.textContent = text;
+        syncReviewRecords.append(item);
+      }
+
+      syncReviewModal.classList.add("show");
+      return new Promise((resolve) => {
+        const cleanup = () => {
+          syncReviewModal.classList.remove("show");
+          syncReviewConfirmButton.onclick = null;
+          syncReviewPeerRejectButton.onclick = null;
+          syncReviewTimeoutButton.onclick = null;
+          syncReviewCancelButtons.forEach((button) => {
+            button.onclick = null;
+          });
+        };
+        const applyConfirmationAction = async (action, decisions = []) => {
+          try {
+            const response = await fetch("/api/sync/confirmation-action", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ confirmationId: confirmation.id, action, decisions })
+            });
+            if (!response.ok) throw new Error(`confirmation action ${response.status}`);
+            const result = await response.json();
+            applyAppState(result.appState);
+            showToast(action === "confirm" ? "已确认对方同步请求" : action === "timeout" ? "等待对方确认超时" : "对方已拒绝本次同步");
+          } catch {
+            showToast("同步确认状态写入失败");
+          }
+        };
+        syncReviewConfirmButton.onclick = async () => {
+          const expiresAt = Date.parse(confirmation.review?.expiresAt ?? confirmation.expiresAt ?? "");
+          if (Number.isFinite(expiresAt) && expiresAt <= Date.now()) {
+            showToast("同步摘要已过期，请重新生成后再确认");
+            return;
+          }
+          if (confirmation.requestRole === "receiver") {
+            const decisions = await collectConflictDecisions(confirmation);
+            if (decisions === null) {
+              showToast("已取消冲突处理，同步请求未确认");
+              return;
+            }
+            await applyConfirmationAction("confirm", decisions);
+            cleanup();
+            resolve(false);
+            return;
+          }
+          cleanup();
+          resolve(true);
+        };
+        syncReviewPeerRejectButton.onclick = async () => {
+          await applyConfirmationAction("reject");
+          cleanup();
+          resolve(false);
+        };
+        syncReviewTimeoutButton.onclick = async () => {
+          await applyConfirmationAction("timeout");
+          cleanup();
+          resolve(false);
+        };
+        syncReviewCancelButtons.forEach((button) => {
+          button.onclick = () => {
+            cleanup();
+            resolve(false);
+          };
+        });
+      });
+    }
+
+    function formatSyncReviewTrust(review = {}) {
+      if (review.requiresRepairing) return "需要重新面对面配对";
+      if (review.pairingAction && review.pairingAction !== "not-required") return "需要面对面配对";
+      return "已信任，仍需确认本次摘要";
+    }
+
+    function findDesktopPendingSyncConfirmation(confirmationId) {
+      const pending = currentState?.sync?.syncCenter?.pendingConfirmations ?? [];
+      if (confirmationId) {
+        return pending.find((item) => item.id === confirmationId);
+      }
+      return currentState?.sync?.pendingConfirmation ?? pending.at(-1);
+    }
+
+    function createFieldMergeOption(name, value, text, checked) {
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = name;
+      input.value = value;
+      input.checked = checked;
+      label.append(input, document.createTextNode(text));
+      return label;
+    }
+
+    function collectManualMergeFields(card) {
+      const resolution = card.querySelector("input[type='radio']:checked")?.value ?? "use-local";
+      if (resolution !== "manual-merge") {
+        return undefined;
+      }
+      return {
+        fields: [...card.querySelectorAll("[data-field-key]")].map((row) => ({
+          fieldKey: row.dataset.fieldKey,
+          sensitivity: row.dataset.fieldSensitivity,
+          source: row.querySelector("input[type='radio']:checked")?.value ?? "local"
+        }))
+      };
+    }
+
+    function updateConflictDecisionSummary(list, summaryNode) {
+      const cards = [...list.querySelectorAll("[data-conflict-id]")];
+      const counts = {};
+      let manualFields = 0;
+      const labels = {
+        "use-local": "保留本机",
+        "use-remote": "使用对方",
+        "keep-both": "保留两份",
+        "manual-merge": "手动合并",
+        "ignore-remote": "忽略传入"
+      };
+      for (const card of cards) {
+        const resolution = card.querySelector("input[type='radio']:checked")?.value ?? "use-local";
+        counts[resolution] = (counts[resolution] ?? 0) + 1;
+        const fieldCount = resolution === "manual-merge" ? card.querySelectorAll("[data-field-key]").length : 0;
+        manualFields += fieldCount;
+        const state = card.querySelector("[data-conflict-decision-state]");
+        if (state) {
+          state.textContent = fieldCount
+            ? `当前选择：${labels[resolution]} · ${fieldCount} 个字段`
+            : `当前选择：${labels[resolution]}`;
+        }
+      }
+      if (summaryNode) {
+        const parts = Object.entries(counts).map(([key, count]) => `${labels[key] ?? key} ${count}`);
+        summaryNode.textContent = `冲突 ${cards.length} 条 · ${parts.join(" · ")}${manualFields ? ` · 手动字段 ${manualFields}` : ""}`;
+      }
+    }
+
+    function createConflictDiffView(conflict, labels) {
+      const diff = document.createElement("div");
+      diff.className = "conflict-diff";
+      diff.setAttribute("data-conflict-diff", "");
+      const fields = conflict.fields ?? [];
+      diff.append(
+        createConflictVersionCard(labels.localLabel, "保留本机现有记录", filterConflictFieldsForSide(fields, "local")),
+        createConflictVersionCard(labels.remoteLabel, "应用对方传入变更", filterConflictFieldsForSide(fields, "remote"))
+      );
+      return diff;
+    }
+
+    function createConflictVersionCard(label, summary, fields) {
+      const card = document.createElement("div");
+      card.className = "conflict-version";
+      card.setAttribute("data-conflict-version", label);
+      const sensitiveCount = fields.filter((field) => field.sensitivity === "secret" || field.sensitivity === "critical").length;
+      const fieldNames = fields.map(describeConflictField).join("、") || "这一侧没有对应字段";
+      card.innerHTML = `
+        <strong></strong>
+        <span class="muted"></span>
+        <span class="muted"></span>
+      `;
+      card.querySelector("strong").textContent = label;
+      card.querySelector("span:nth-child(2)").textContent = summary;
+      card.querySelector("span:nth-child(3)").textContent = `${fieldNames}${sensitiveCount ? ` · ${sensitiveCount} 个敏感字段已隐藏明文` : ""}`;
+      return card;
+    }
+
+    function filterConflictFieldsForSide(fields, side) {
+      return fields.filter((field) => {
+        if (side === "local") {
+          return field.side !== "remote-only";
+        }
+        return field.side !== "local-only";
+      });
+    }
+
+    function describeConflictField(field) {
+      const sideLabel = {
+        "both": "双方不同",
+        "local-only": "仅本机",
+        "remote-only": "仅对方"
+      }[field.side ?? "both"];
+      const localTime = field.localUpdatedAt ? `本机 ${formatConflictTime(field.localUpdatedAt)}` : "本机无";
+      const remoteTime = field.remoteUpdatedAt ? `对方 ${formatConflictTime(field.remoteUpdatedAt)}` : "对方无";
+      return `${field.key} · ${field.sensitivity} · ${sideLabel} · ${localTime} / ${remoteTime}`;
+    }
+
+    function formatConflictTime(value) {
+      return new Date(value).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+    }
+
+    function conflictResolutionHelp(resolution) {
+      return {
+        "use-local": "保留本机：对方这次传入的冲突记录会被忽略。",
+        "use-remote": "使用对方：本机记录会按对方版本更新。",
+        "keep-both": "保留两份：本机和对方版本都保留，稍后再整理。",
+        "manual-merge": "手动合并：逐字段选择本机或对方来源。",
+        "ignore-remote": "忽略传入：本次不处理对方冲突变更。"
+      }[resolution] ?? "请选择处理方式。";
+    }
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+      modal.classList.remove("show");
+    });
+
+    document.querySelectorAll("[data-modal-action]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const action = button.dataset.modalAction === "snooze" ? "snooze" : button.dataset.modalAction === "dismiss" ? "dismiss" : "complete";
+        try {
+          const response = await fetch("/api/reminders/action", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action,
+              alertId: currentReminderAlertId
+            })
+          });
+          if (!response.ok) {
+            throw new Error(`reminder action ${response.status}`);
+          }
+          const nextState = await response.json();
+          applyAppState(nextState);
+          modal.classList.remove("show");
+          showToast(action === "snooze" ? "已写入本机稍后提醒状态" : action === "dismiss" ? "已写入本机忽略状态" : "已写入本机完成状态");
+        } catch {
+          modal.classList.remove("show");
+          showToast(action === "snooze" ? "已设置稍后提醒" : action === "dismiss" ? "已忽略提醒" : "已完成提醒");
+        }
+      });
+    });
+    dispatchRemindersButton?.addEventListener("click", dispatchDesktopReminderNotifications);
+
+    searchInput.addEventListener("input", () => {
+      const keyword = searchInput.value.trim().toLowerCase();
+      document.querySelectorAll("[data-record]").forEach((row) => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(keyword) ? "grid" : "none";
+      });
+    });
+
+    typeNav.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-type]");
+      if (!button) return;
+      document.querySelectorAll("#typeNav button").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+      const type = button.dataset.type;
+      activeType = type;
+      document.querySelectorAll("[data-record]").forEach((row) => {
+        row.style.display = type === "all" || row.dataset.type === type ? "grid" : "none";
+      });
+      document.getElementById("listHint").textContent = type === "all"
+        ? "18 条本地记录，2 条即将到期"
+        : "已按类型筛选本地记录";
+    });
+
+    function typeIconClass(type) {
+      return {
+        account: "type-account",
+        bank: "type-card",
+        member: "type-member",
+        id: "type-id"
+      }[type] ?? "type-account";
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    fetch("/api/app-state")
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error(`app-state ${response.status}`)))
+      .then(applyAppState)
+      .catch(() => {
+        renderRecord("github");
+        showToast("使用本地兜底界面数据");
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loginto.local/schemas/record-template.schema.json",
+  "title": "LoginTo Record Template",
+  "type": "object",
+  "required": ["type", "label", "icon", "description", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["account", "bank_card", "membership", "identity_document", "secret_key", "custom"]
+    },
+    "label": { "type": "string", "minLength": 1 },
+    "icon": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "defaultReminderDaysBefore": { "type": "integer", "minimum": 0 },
+    "fields": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "label", "kind", "sensitivity", "required", "searchable"],
+        "additionalProperties": false,
+        "properties": {
+          "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "label": { "type": "string", "minLength": 1 },
+          "kind": {
+            "type": "string",
+            "enum": ["text", "password", "url", "email", "phone", "number", "date", "textarea", "otp_backup", "attachment"]
+          },
+          "sensitivity": {
+            "type": "string",
+            "enum": ["public", "private", "secret", "critical"]
+          },
+          "required": { "type": "boolean" },
+          "searchable": { "type": "boolean" },
+          "reminderCandidate": { "type": "boolean" },
+          "placeholder": { "type": "string" }
+        }
+      }
+    }
+  }
+}

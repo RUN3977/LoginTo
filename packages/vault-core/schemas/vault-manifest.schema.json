@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loginto.local/schemas/vault-manifest.schema.json",
+  "title": "LoginTo Vault Manifest",
+  "type": "object",
+  "required": ["vaultId", "name", "schemaVersion", "createdAt", "updatedAt", "deviceId", "cryptoProfile"],
+  "additionalProperties": false,
+  "properties": {
+    "vaultId": { "type": "string", "minLength": 8 },
+    "name": { "type": "string", "minLength": 1 },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "deviceId": { "type": "string", "minLength": 8 },
+    "cryptoProfile": {
+      "type": "string",
+      "enum": ["local-vault-v1"]
+    }
+  }
+}
