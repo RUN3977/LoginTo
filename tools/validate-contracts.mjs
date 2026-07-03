@@ -571,6 +571,7 @@ assert(!readText("apps/tablet/scripts/app-state.mjs").includes("createUnsafeDeve
 assert(readText("apps/desktop/scripts/app-state.mjs").includes("createDesktopShellPairingPreview"), "desktop shell should expose pairing preview handler");
 assert(readText("apps/desktop/scripts/app-state.mjs").includes("encodePairingPayloadQr"), "desktop shell pairing preview should expose standard QR payloads");
 assert(readText("apps/desktop/scripts/app-state.mjs").includes("confirmDesktopShellPairing"), "desktop shell should expose pairing confirmation handler");
+assert(readText("apps/desktop/prototype/index.html").includes("data-desktop-pairing-payload") && readText("apps/desktop/prototype/index.html").includes("data-desktop-pairing-copy"), "desktop shell should expose a copyable QR payload for face-to-face pairing");
 assert(readText("tools/smoke-desktop-app-shell.mjs").includes("persist vault and runtime-state files"), "desktop app shell smoke should verify persisted runtime files");
 assert(readText("tools/smoke-desktop-app-shell.mjs").includes("completed status"), "desktop app shell smoke should verify completed reminder actions");
 assert(readText("tools/smoke-desktop-app-shell.mjs").includes("snoozed status"), "desktop app shell smoke should verify snoozed reminder actions");

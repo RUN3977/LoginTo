@@ -69,6 +69,9 @@ try {
   if (!html.includes("data-candidate-action") || !html.includes("data-candidate-reason")) {
     throw new Error("Expected desktop shell HTML to explain and resolve near-field candidate actions");
   }
+  if (!html.includes("data-desktop-pairing-payload") || !html.includes("data-desktop-pairing-copy") || !html.includes("copyPairingPayloadBtn")) {
+    throw new Error("Expected desktop shell HTML to expose copyable QR pairing payload text");
+  }
   if (!html.includes("recordForm")) {
     throw new Error("Expected desktop shell HTML to include the add-record form");
   }

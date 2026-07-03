@@ -1192,6 +1192,8 @@
             </div>
             <span class="muted" id="pairingCode">6 位校验码：412666</span>
             <span class="muted" id="pairingExpiry">等待生成配对窗口</span>
+            <textarea id="pairingPayloadText" data-desktop-pairing-payload rows="3" readonly placeholder="QR payload"></textarea>
+            <button class="secondary" type="button" id="copyPairingPayloadBtn" data-desktop-pairing-copy>复制 QR payload</button>
           </div>
           <button class="sync-action" id="syncBtn"><span id="syncBtnLabel">刷新配对码</span><span>⇄</span></button>
           <button class="sync-action" id="confirmPairingBtn"><span>等待手机扫码</span><span>⌁</span></button>
@@ -1363,6 +1365,7 @@
     let currentReminderAlertId;
     let currentSelectedRecordId = "github";
     let currentPairingCode;
+    let currentPairingPayloadText;
     let currentNearFieldDiscovery;
     let recordFormMode = "create";
     let editingRecordId;
@@ -2046,6 +2049,11 @@
       document.getElementById("pairingTitle").textContent = "面对面配对";
       document.getElementById("pairingCode").textContent = `6 位校验码：${sync.sixDigitCode}`;
       currentPairingCode = sync.sixDigitCode;
+      currentPairingPayloadText = sync.qrPayloadText ?? "";
+      const pairingPayloadText = document.getElementById("pairingPayloadText");
+      if (pairingPayloadText) {
+        pairingPayloadText.value = currentPairingPayloadText;
+      }
       const expiresAt = sync.expiresAt ? new Date(sync.expiresAt).toLocaleTimeString("zh-CN", { hour12: false }) : "5 分钟后";
       const trustedCount = Number.isFinite(sync.trustedDevices) ? ` · 可信设备：${sync.trustedDevices}` : "";
       document.getElementById("pairingExpiry").textContent = `本机端点：${sync.localEndpoint || "待生成"} · 过期：${expiresAt}${trustedCount}`;
@@ -2328,6 +2336,12 @@
       } catch {
         showToast("复制失败，请保持保险箱解锁");
       }
+    });
+
+    document.getElementById("copyPairingPayloadBtn")?.addEventListener("click", async () => {
+      const value = currentPairingPayloadText || document.getElementById("pairingPayloadText")?.value;
+      await copyTextIfAvailable(value);
+      showToast("QR payload 已准备复制，可粘贴到手机或平板。");
     });
 
     document.querySelector("[data-action='security-second-unlock']").addEventListener("click", async () => {
